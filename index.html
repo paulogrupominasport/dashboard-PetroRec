@@ -504,11 +504,12 @@ const CONFIG = {
   SHEET_GID: '1555328701',
   // Alternativa (usada só como reserva se o método acima falhar): URL pública CSV.
   REMOTE_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQu07iklj_r4xxrmVLHxbuTa6g-HewhEfbNpw5lkkzVcjkDD1oui83wRwscQfuE_A/pub?gid=1555328701&single=true&output=csv',
-  AUTO_REFRESH_MIN: 10     // intervalo (minutos) entre atualizações automáticas
+  AUTO_REFRESH_MIN: 60     // intervalo (minutos) entre atualizações automáticas (troque p/ 30 se quiser)
 };
 
 /* ============ ESTADO ============ */
 let RAW = INITIAL_DATA.slice();
+let primeiraCarga = true;   // controla quando os filtros podem ser resetados
 let charts = {};
 const BRL = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
 const NUM = new Intl.NumberFormat('pt-BR',{maximumFractionDigits:2});
@@ -591,7 +592,11 @@ const sum=(a,k)=>a.reduce((t,r)=>t+(r[k]||0),0);
 const avg=(a,k)=>{const v=a.filter(r=>r[k]!=null);return v.length?sum(v,k)/v.length:0;};
 
 /* ============ POPULA FILTROS ============ */
-function populateFilters(){
+function populateFilters(preservar){
+  const ant = preservar ? {
+    s:$('fDateStart').value, e:$('fDateEnd').value,
+    cav:$('fCavalo').value, reb:$('fReboque').value
+  } : null;
   const cavs=[...new Set(RAW.map(r=>r.cavalo).filter(Boolean))].sort();
   const rebs=[...new Set(RAW.map(r=>r.reboque).filter(Boolean))].sort();
   $('fCavalo').innerHTML='<option value="">Todos</option>'+cavs.map(c=>`<option>${c}</option>`).join('');
@@ -600,8 +605,12 @@ function populateFilters(){
   if(dates.length){
     $('fDateStart').min=$('fDateEnd').min=dates[0];
     $('fDateStart').max=$('fDateEnd').max=dates[dates.length-1];
-    $('fDateStart').value=dates[0];
-    $('fDateEnd').value=dates[dates.length-1];
+    $('fDateStart').value=(ant&&ant.s)?ant.s:dates[0];
+    $('fDateEnd').value=(ant&&ant.e)?ant.e:dates[dates.length-1];
+  }
+  if(ant){
+    if(ant.cav&&cavs.includes(ant.cav))$('fCavalo').value=ant.cav;
+    if(ant.reb&&rebs.includes(ant.reb))$('fReboque').value=ant.reb;
   }
 }
 
@@ -997,7 +1006,7 @@ function setStatus(txt,cls){
 function aplicarRemoto(rows,silencioso,origem){
   const norm=normalizeRows(rows);
   if(!norm.length)throw new Error('nenhuma linha válida (verifique a coluna DATA)');
-  RAW=norm;populateFilters();render();
+  RAW=norm;populateFilters(!primeiraCarga);primeiraCarga=false;render();
   const h=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
   setStatus('Atualizado em '+h+' · '+norm.length+' reg.','ok');
   if(!silencioso)toast('Base atualizada ('+origem+'): '+norm.length+' registros');
@@ -1167,7 +1176,6 @@ render();
 if(CONFIG.SHEET_ID || CONFIG.REMOTE_URL){
   carregarRemoto(false);
   setInterval(()=>carregarRemoto(true), CONFIG.AUTO_REFRESH_MIN*60000);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)carregarRemoto(true);});
 }else{
   setStatus('Fonte online não configurada','');
 }
