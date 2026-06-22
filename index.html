@@ -144,6 +144,18 @@
   .sec-title h2{font-family:'Archivo',sans-serif;font-weight:800;font-size:16.5px;letter-spacing:.3px}
   .sec-title span{font-size:12.5px;color:var(--txt-dim);font-weight:600;margin-left:4px}
 
+  /* ===== ABAS (Visão Geral / Histórico) ===== */
+  .tabs{display:flex;gap:6px;margin:0 2px 18px;padding:5px;background:var(--surface-solid);
+        border:1px solid var(--line);border-radius:14px;width:max-content}
+  .tabs .tab{font-family:'Archivo',sans-serif;font-weight:700;font-size:13.5px;letter-spacing:.2px;
+        color:var(--txt-mut);background:transparent;border:0;border-radius:10px;
+        padding:9px 20px;cursor:pointer;transition:.18s}
+  .tabs .tab:hover{color:var(--txt)}
+  .tabs .tab.active{background:var(--lime);color:#10120c;box-shadow:var(--shadow-lime)}
+  /* alterna as views conforme a aba ativa */
+  .shell[data-view="geral"] .v-hist{display:none !important}
+  .shell[data-view="hist"]  .v-geral{display:none !important}
+
   /* ===== CHART GRID ===== */
   .grid{display:grid;gap:16px}
   .grid.c2{grid-template-columns:1.6fr 1fr}
@@ -217,6 +229,8 @@
     font-family:'Archivo',sans-serif;font-weight:800;color:var(--white);font-variant-numeric:tabular-nums}
   table.wk tfoot td.act{border-left:1px solid var(--line-soft);color:var(--lime)}
   table.wk tfoot td:first-child{color:var(--txt-mut);letter-spacing:.6px;font-size:11.5px}
+  /* alinhamento uniforme: cabeçalho, linhas e linha de Total/Média centralizados */
+  table.wk thead th,table.wk tbody td,table.wk tfoot td{text-align:center}
 
   /* ===== TOAST ===== */
   #toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(120px);
@@ -234,6 +248,7 @@
 
   /* PDF export mode — aplicado SOMENTE na cópia capturada (sem afetar a tela) */
   body.exporting .actions,body.exporting .chip-reset{visibility:hidden}
+  body.exporting .tabs{display:none}
   /* fundos sólidos opacos (gradiente/alpha esmaece na captura) */
   body.exporting .topbar{background:#070807 !important}
   body.exporting .filters{background:#151715 !important}
@@ -314,7 +329,7 @@
 </style>
 </head>
 <body>
-<div class="shell" id="dashboard">
+<div class="shell" id="dashboard" data-view="geral">
 
   <!-- HEADER -->
   <header class="topbar reveal">
@@ -345,8 +360,14 @@
     </div>
   </header>
 
+  <!-- ABAS -->
+  <nav class="tabs reveal" id="tabs" style="animation-delay:.04s">
+    <button class="tab active" data-view="geral" type="button">Visão Dia a Dia</button>
+    <button class="tab" data-view="hist" type="button">Visão Gerencial - Fechamento Mensal</button>
+  </nav>
+
   <!-- FILTERS -->
-  <section class="filters reveal" style="animation-delay:.06s">
+  <section class="filters reveal v-geral" style="animation-delay:.06s">
     <div class="fld">
       <label>Data início</label>
       <input type="date" id="fDateStart">
@@ -372,12 +393,20 @@
   </section>
 
   <!-- KPIs -->
-  <section class="kpi-grid" id="kpiGrid"></section>
+  <section class="kpi-grid v-geral" id="kpiGrid"></section>
 
-  <!-- RESULTADO GERENCIAL -->
-  <div class="sec-title reveal"><span class="bar"></span><h2>Resultado Gerencial</h2><span id="gerNote">Filial Mossoró · base mensal · não afetado pelos filtros</span></div>
-  <section class="kpi-grid ger" id="gerGrid"></section>
-  <div class="grid c2" style="margin-top:16px">
+  <!-- RESULTADO GERENCIAL (aba Histórico) -->
+  <section class="filters reveal v-hist" style="animation-delay:.06s">
+    <div class="fld">
+      <label>Mês de referência</label>
+      <select id="fGerMes"></select>
+    </div>
+    <div class="spacer"></div>
+    <div class="range-info">Resultados mensais fechados · independente dos filtros de data</div>
+  </section>
+  <div class="sec-title reveal v-hist"><span class="bar"></span><h2>Resultado Gerencial</h2><span id="gerNote">Filial Mossoró · base mensal</span></div>
+  <section class="kpi-grid ger v-hist" id="gerGrid"></section>
+  <div class="grid c2 v-hist" style="margin-top:16px">
     <div class="panel reveal">
       <h3><span class="dot"></span>Demonstrativo de Resultado (DRE)</h3>
       <div class="p-sub">Faturamento, custos variáveis e fixos até o resultado líquido</div>
@@ -391,8 +420,8 @@
   </div>
 
   <!-- TIME SERIES -->
-  <div class="sec-title reveal"><span class="bar"></span><h2>Evolução Operacional</h2><span>série diária por CT-e</span></div>
-  <div class="grid c2">
+  <div class="sec-title reveal v-geral"><span class="bar"></span><h2>Evolução Operacional</h2><span id="evoNote">série diária por CT-e</span></div>
+  <div class="grid c2 v-geral">
     <div class="panel reveal">
       <h3><span class="dot"></span>Faturamento líquido & volume transportado</h3>
       <div class="p-sub">Valor CTE Líquido (R$) vs. Petróleo transportado (m³) por dia</div>
@@ -407,8 +436,8 @@
   </div>
 
   <!-- BY VEHICLE -->
-  <div class="sec-title reveal"><span class="bar"></span><h2>Desempenho por Veículo</h2><span>cavalo mecânico & reboque</span></div>
-  <div class="grid c2">
+  <div class="sec-title reveal v-geral"><span class="bar"></span><h2>Desempenho por Veículo</h2><span id="vehNote">cavalo mecânico &amp; reboque</span></div>
+  <div class="grid c2 v-geral">
     <div class="panel reveal">
       <h3><span class="dot"></span>Faturamento líquido por cavalo</h3>
       <div class="p-sub">Total de Valor CTE Líquido (R$) acumulado por placa</div>
@@ -422,12 +451,12 @@
   </div>
 
   <!-- INSIGHTS -->
-  <div class="sec-title reveal"><span class="bar"></span><h2>Insights Automáticos</h2><span>gerados a partir da base filtrada</span></div>
-  <section class="insights" id="insights"></section>
+  <div class="sec-title reveal v-geral"><span class="bar"></span><h2>Insights Automáticos</h2><span id="insNote">gerados a partir da base filtrada</span></div>
+  <section class="insights v-geral" id="insights"></section>
 
   <!-- WEEKLY -->
-  <div class="sec-title reveal"><span class="bar"></span><h2>Faturamento Semanal vs Meta</h2><span id="weekNote">visão fixa · não afetada pelos filtros</span></div>
-  <div class="panel reveal" style="padding:14px">
+  <div class="sec-title reveal v-geral"><span class="bar"></span><h2>Faturamento Semanal vs Meta</h2><span id="weekNote">visão fixa · não afetada pelos filtros</span></div>
+  <div class="panel reveal v-geral" style="padding:14px">
     <div class="tbl-wrap" style="max-height:none">
       <table id="weekTable" class="wk">
         <thead>
@@ -452,45 +481,94 @@
 /* ============ DADOS INICIAIS (aba Compilado) ============ */
 const INITIAL_DATA = [{"data": "2026-04-19", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100008930-3", "petroleo": 50.009, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4045.73, "cteBruto": 3586.77, "valorCarga": 30005.4, "cteLiq": 3255.0, "valorKm": 11.97}, {"data": "2026-04-20", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009020-3", "petroleo": 50.01, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4045.81, "cteBruto": 3586.85, "valorCarga": 30006.0, "cteLiq": 3255.07, "valorKm": 11.97}, {"data": "2026-04-21", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009069-3", "petroleo": 50.29, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4068.46, "cteBruto": 3609.51, "valorCarga": 30174.0, "cteLiq": 3275.63, "valorKm": 12.04}, {"data": "2026-04-23", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009164-3", "petroleo": 50.657, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4098.15, "cteBruto": 3639.2, "valorCarga": 30394.2, "cteLiq": 3302.57, "valorKm": 12.14}, {"data": "2026-04-24", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100009207-3", "petroleo": 50.052, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4049.21, "cteBruto": 3590.25, "valorCarga": 30031.2, "cteLiq": 3258.15, "valorKm": 11.98}, {"data": "2026-04-25", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009235-3", "petroleo": 50.276, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4067.33, "cteBruto": 3608.37, "valorCarga": 30165.6, "cteLiq": 3274.6, "valorKm": 12.04}, {"data": "2026-04-26", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009278-3", "petroleo": 50.234, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4063.93, "cteBruto": 3604.98, "valorCarga": 30140.4, "cteLiq": 3271.52, "valorKm": 12.03}, {"data": "2026-04-27", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100009323-3", "petroleo": 50.24, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4064.42, "cteBruto": 3605.46, "valorCarga": 30144.0, "cteLiq": 3271.96, "valorKm": 12.03}, {"data": "2026-04-28", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009370-3", "petroleo": 50.321, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4070.97, "cteBruto": 3612.01, "valorCarga": 30192.6, "cteLiq": 3277.9, "valorKm": 12.05}, {"data": "2026-04-29", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009420-3", "petroleo": 50.02, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4046.62, "cteBruto": 3587.66, "valorCarga": 30012.0, "cteLiq": 3255.8, "valorKm": 11.97}, {"data": "2026-04-30", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009466-3", "petroleo": 50.015, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4046.21, "cteBruto": 3587.26, "valorCarga": 30009.0, "cteLiq": 3255.44, "valorKm": 11.97}, {"data": "2026-05-01", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009512-3", "petroleo": 50.039, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4048.16, "cteBruto": 3589.2, "valorCarga": 30023.4, "cteLiq": 3257.2, "valorKm": 11.97}, {"data": "2026-05-02", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009560-3", "petroleo": 50.019, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4046.54, "cteBruto": 3587.58, "valorCarga": 30011.4, "cteLiq": 3255.73, "valorKm": 11.97}, {"data": "2026-05-03", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009602-3", "petroleo": 50.043, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4048.48, "cteBruto": 3589.52, "valorCarga": 30025.8, "cteLiq": 3257.49, "valorKm": 11.98}, {"data": "2026-05-04", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100009640-3", "petroleo": 50.045, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4048.64, "cteBruto": 3589.69, "valorCarga": 30027.0, "cteLiq": 3257.64, "valorKm": 11.98}, {"data": "2026-05-05", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100009693-3", "petroleo": 50.059, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 4049.77, "cteBruto": 3590.82, "valorCarga": 30035.4, "cteLiq": 3258.67, "valorKm": 11.98}, {"data": "2026-05-06", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009731-3", "petroleo": 48.239, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3902.54, "cteBruto": 3443.58, "valorCarga": 28943.4, "cteLiq": 3125.05, "valorKm": 11.49}, {"data": "2026-05-07", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009783-3", "petroleo": 45.093, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3648.02, "cteBruto": 3189.07, "valorCarga": 27055.8, "cteLiq": 2894.08, "valorKm": 10.64}, {"data": "2026-05-07", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100009774-3", "petroleo": 45.081, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3647.05, "cteBruto": 3188.1, "valorCarga": 27048.6, "cteLiq": 2893.2, "valorKm": 10.64}, {"data": "2026-05-08", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009820-3", "petroleo": 48.22, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3901.0, "cteBruto": 3442.04, "valorCarga": 28932.0, "cteLiq": 3123.65, "valorKm": 11.48}, {"data": "2026-05-08", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100009828-3", "petroleo": 46.981, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3800.76, "cteBruto": 3341.81, "valorCarga": 28188.6, "cteLiq": 3032.69, "valorKm": 11.15}, {"data": "2026-05-09", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009871-3", "petroleo": 47.063, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3807.4, "cteBruto": 3348.44, "valorCarga": 28237.8, "cteLiq": 3038.71, "valorKm": 11.17}, {"data": "2026-05-09", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100009882-3", "petroleo": 47.107, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3810.96, "cteBruto": 3352.0, "valorCarga": 28264.2, "cteLiq": 3041.94, "valorKm": 11.18}, {"data": "2026-05-10", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009910-3", "petroleo": 47.0, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3802.3, "cteBruto": 3343.35, "valorCarga": 28200.0, "cteLiq": 3034.09, "valorKm": 11.15}, {"data": "2026-05-10", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100009921-3", "petroleo": 47.208, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3819.13, "cteBruto": 3360.17, "valorCarga": 28324.8, "cteLiq": 3049.36, "valorKm": 11.21}, {"data": "2026-05-11", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100009954-3", "petroleo": 47.172, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3816.21, "cteBruto": 3357.26, "valorCarga": 28303.2, "cteLiq": 3046.71, "valorKm": 11.2}, {"data": "2026-05-11", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100009968-3", "petroleo": 47.168, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3815.89, "cteBruto": 3356.94, "valorCarga": 28300.8, "cteLiq": 3046.42, "valorKm": 11.2}, {"data": "2026-05-12", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100010001-3", "petroleo": 47.277, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3824.71, "cteBruto": 3365.76, "valorCarga": 28366.2, "cteLiq": 3054.42, "valorKm": 11.23}, {"data": "2026-05-12", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100010013-3", "petroleo": 47.145, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3814.03, "cteBruto": 3355.08, "valorCarga": 28287.0, "cteLiq": 3044.73, "valorKm": 11.19}, {"data": "2026-05-13", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100010047-3", "petroleo": 47.094, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3809.9, "cteBruto": 3350.95, "valorCarga": 28256.4, "cteLiq": 3040.99, "valorKm": 11.18}, {"data": "2026-05-14", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100010106-3", "petroleo": 47.008, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3802.95, "cteBruto": 3343.99, "valorCarga": 28204.8, "cteLiq": 3034.67, "valorKm": 11.16}, {"data": "2026-05-14", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100010094-3", "petroleo": 47.004, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3802.62, "cteBruto": 3343.67, "valorCarga": 28202.4, "cteLiq": 3034.38, "valorKm": 11.16}, {"data": "2026-05-15", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100010153-3", "petroleo": 47.065, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3807.56, "cteBruto": 3348.6, "valorCarga": 28239.0, "cteLiq": 3038.86, "valorKm": 11.17}, {"data": "2026-05-15", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100010143-3", "petroleo": 48.212, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3900.35, "cteBruto": 3441.4, "valorCarga": 28927.2, "cteLiq": 3123.07, "valorKm": 11.48}, {"data": "2026-05-16", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100010200-3", "petroleo": 47.008, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3802.95, "cteBruto": 3343.99, "valorCarga": 28204.8, "cteLiq": 3034.67, "valorKm": 11.16}, {"data": "2026-05-16", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100010182-3", "petroleo": 47.096, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3810.07, "cteBruto": 3351.11, "valorCarga": 28257.6, "cteLiq": 3041.13, "valorKm": 11.18}, {"data": "2026-05-17", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100010241-3", "petroleo": 47.049, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3806.26, "cteBruto": 3347.31, "valorCarga": 28229.4, "cteLiq": 3037.68, "valorKm": 11.17}, {"data": "2026-05-17", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100010230-3", "petroleo": 47.06, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3807.15, "cteBruto": 3348.2, "valorCarga": 28236.0, "cteLiq": 3038.49, "valorKm": 11.17}, {"data": "2026-05-18", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100010286-3", "petroleo": 47.018, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3803.76, "cteBruto": 3344.8, "valorCarga": 28210.8, "cteLiq": 3035.41, "valorKm": 11.16}, {"data": "2026-05-18", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100010276-3", "petroleo": 47.052, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3806.51, "cteBruto": 3347.55, "valorCarga": 28231.2, "cteLiq": 3037.9, "valorKm": 11.17}, {"data": "2026-05-19", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100010320-3", "petroleo": 47.064, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3807.48, "cteBruto": 3348.52, "valorCarga": 28238.4, "cteLiq": 3038.78, "valorKm": 11.17}, {"data": "2026-05-19", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100010330-3", "petroleo": 47.085, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3809.18, "cteBruto": 3350.22, "valorCarga": 28251.0, "cteLiq": 3040.33, "valorKm": 11.18}, {"data": "2026-05-20", "cavalo": "GIT7C28", "reboque": "TZD6A97", "ncmi": "100010361-3", "petroleo": 47.015, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3803.51, "cteBruto": 3344.56, "valorCarga": 28209.0, "cteLiq": 3035.19, "valorKm": 11.16}, {"data": "2026-05-20", "cavalo": "GHA7H54", "reboque": "TZB1D59", "ncmi": "100010370-3", "petroleo": 47.008, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3802.95, "cteBruto": 3343.99, "valorCarga": 28204.8, "cteLiq": 3034.67, "valorKm": 11.16}, {"data": "2026-05-21", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010406-3", "petroleo": 47.265, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3823.74, "cteBruto": 3364.78, "valorCarga": 28359.0, "cteLiq": 3053.54, "valorKm": 11.23}, {"data": "2026-05-21", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100010415-3", "petroleo": 47.204, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3818.8, "cteBruto": 3359.85, "valorCarga": 28322.4, "cteLiq": 3049.06, "valorKm": 11.21}, {"data": "2026-05-22", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010451-3", "petroleo": 47.406, "gnlKg": 4.17, "gnlAbast": 110.0, "gnlViagem": 458.95, "freteCNB": 3835.15, "cteBruto": 3376.19, "valorCarga": 28443.6, "cteLiq": 3063.89, "valorKm": 11.26}, {"data": "2026-05-22", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100010462-3", "petroleo": 47.012, "gnlKg": 4.17, "gnlAbast": 105.0, "gnlViagem": 438.09, "freteCNB": 3803.27, "cteBruto": 3365.18, "valorCarga": 28207.2, "cteLiq": 3053.9, "valorKm": 11.23}, {"data": "2026-05-23", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010497-3", "petroleo": 47.021, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3804.0, "cteBruto": 3365.13, "valorCarga": 28212.6, "cteLiq": 3053.86, "valorKm": 11.23}, {"data": "2026-05-23", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100010510-3", "petroleo": 47.34, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3829.81, "cteBruto": 3390.94, "valorCarga": 28404.0, "cteLiq": 3077.28, "valorKm": 11.31}, {"data": "2026-05-24", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010547-3", "petroleo": 47.06, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3807.15, "cteBruto": 3368.29, "valorCarga": 28236.0, "cteLiq": 3056.72, "valorKm": 11.24}, {"data": "2026-05-24", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100010555-3", "petroleo": 47.021, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3804.0, "cteBruto": 3365.13, "valorCarga": 28212.6, "cteLiq": 3053.86, "valorKm": 11.23}, {"data": "2026-05-25", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010602-3", "petroleo": 47.185, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3817.27, "cteBruto": 3378.4, "valorCarga": 28311.0, "cteLiq": 3065.9, "valorKm": 11.27}, {"data": "2026-05-26", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100010606-3", "petroleo": 47.438, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3837.73, "cteBruto": 3398.87, "valorCarga": 28462.8, "cteLiq": 3084.47, "valorKm": 11.34}, {"data": "2026-05-26", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010621-3", "petroleo": 47.465, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3839.92, "cteBruto": 3401.05, "valorCarga": 28479.0, "cteLiq": 3086.46, "valorKm": 11.35}, {"data": "2026-05-27", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100010665-3", "petroleo": 47.076, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3808.45, "cteBruto": 3369.58, "valorCarga": 28245.6, "cteLiq": 3057.9, "valorKm": 11.24}, {"data": "2026-05-27", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010672-3", "petroleo": 47.004, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3802.62, "cteBruto": 3363.76, "valorCarga": 28202.4, "cteLiq": 3052.61, "valorKm": 11.22}, {"data": "2026-05-28", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010708-3", "petroleo": 47.064, "gnlKg": 4.18, "gnlAbast": 210.0, "gnlViagem": 877.73, "freteCNB": 3807.48, "cteBruto": 2929.75, "valorCarga": 28238.4, "cteLiq": 2658.74, "valorKm": 9.77}, {"data": "2026-05-29", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010751-3", "petroleo": 47.007, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3802.87, "cteBruto": 3364.0, "valorCarga": 28204.2, "cteLiq": 3052.83, "valorKm": 11.22}, {"data": "2026-05-30", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010794-3", "petroleo": 47.007, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3802.87, "cteBruto": 3364.0, "valorCarga": 28204.2, "cteLiq": 3052.83, "valorKm": 11.22}, {"data": "2026-05-31", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010842-3", "petroleo": 47.027, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3804.48, "cteBruto": 3365.61, "valorCarga": 28216.2, "cteLiq": 3054.29, "valorKm": 11.23}, {"data": "2026-06-01", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010887-3", "petroleo": 47.044, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3805.86, "cteBruto": 3366.99, "valorCarga": 28226.4, "cteLiq": 3055.54, "valorKm": 11.23}, {"data": "2026-06-02", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010931-3", "petroleo": 47.078, "gnlKg": 4.18, "gnlAbast": 105.0, "gnlViagem": 438.87, "freteCNB": 3808.61, "cteBruto": 3369.74, "valorCarga": 28246.8, "cteLiq": 3058.04, "valorKm": 11.24}, {"data": "2026-06-03", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100010887-3", "petroleo": 47.048, "gnlKg": 4.18, "gnlAbast": 115.0, "gnlViagem": 480.66, "freteCNB": 3806.18, "cteBruto": 3325.52, "valorCarga": 28228.8, "cteLiq": 3017.91, "valorKm": 11.1}, {"data": "2026-06-04", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100011017-3", "petroleo": 47.357, "gnlKg": 4.18, "gnlAbast": 115.0, "gnlViagem": 480.66, "freteCNB": 3831.18, "cteBruto": 3350.52, "valorCarga": 28414.2, "cteLiq": 3040.6, "valorKm": 11.18}, {"data": "2026-06-04", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100011024-3", "petroleo": 47.426, "gnlKg": 4.18, "gnlAbast": 115.0, "gnlViagem": 480.66, "freteCNB": 3836.76, "cteBruto": 3356.1, "valorCarga": 28455.6, "cteLiq": 3045.66, "valorKm": 11.2}, {"data": "2026-06-05", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100011063-3", "petroleo": 47.363, "gnlKg": 4.18, "gnlAbast": 115.0, "gnlViagem": 480.66, "freteCNB": 3831.67, "cteBruto": 3351.0, "valorCarga": 28417.8, "cteLiq": 3041.04, "valorKm": 11.18}, {"data": "2026-06-05", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100011053-3", "petroleo": 47.058, "gnlKg": 4.18, "gnlAbast": 115.0, "gnlViagem": 480.66, "freteCNB": 3806.99, "cteBruto": 3326.33, "valorCarga": 28234.8, "cteLiq": 3018.64, "valorKm": 11.1}, {"data": "2026-06-06", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100011098-3", "petroleo": 47.609, "gnlKg": 4.18, "gnlAbast": 115.0, "gnlViagem": 480.66, "freteCNB": 3851.57, "cteBruto": 3370.91, "valorCarga": 28565.4, "cteLiq": 3059.1, "valorKm": 11.25}, {"data": "2026-06-06", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100011106-3", "petroleo": 47.011, "gnlKg": 4.18, "gnlAbast": 115.0, "gnlViagem": 480.66, "freteCNB": 3803.19, "cteBruto": 3322.53, "valorCarga": 28206.6, "cteLiq": 3015.2, "valorKm": 11.09}, {"data": "2026-06-07", "cavalo": "GIT7C28", "reboque": "TZB1D59", "ncmi": "100011138-3", "petroleo": 47.3, "gnlKg": 4.18, "gnlAbast": 110.0, "gnlViagem": 459.76, "freteCNB": 3826.57, "cteBruto": 3366.81, "valorCarga": 28380.0, "cteLiq": 3055.38, "valorKm": 11.23}, {"data": "2026-06-07", "cavalo": "GHA7H54", "reboque": "TZD6A97", "ncmi": "100011143-3", "petroleo": 47.0, "gnlKg": 4.18, "gnlAbast": 110.0, "gnlViagem": 459.76, "freteCNB": 3802.3, "cteBruto": 3342.54, "valorCarga": 28200.0, "cteLiq": 3033.36, "valorKm": 11.15}];
 
-/* ============ RESULTADO GERENCIAL (aba "Resultado Gerencial - Maio") ============ */
-const GERENCIAL = {
-  periodo: 'Maio/26',
-  fatTotal: 191684,
-  combustivelGNL: 23104.57,
-  margemContrib: 168579.43,
-  custoMotoristas: 24405.81,
-  custoCaminhaoLoc: 34000,
-  custoTanque: 16155.72,
-  custoManutencao: 3390,
-  custoSeguro: 0,
-  custoRastreamento: 0,
-  custoAdministracao: 10173,
-  custoOutros: 18000,
-  custoFixoTotal: 106124.53,
-  custoOperTotal: 129229.10,
-  ebitda: 62454.90,
-  depreciacao: 0,
-  resultadoOper: 62454.90,
-  juros: 0,
-  resultadoLiquido: 62454.90,
-  resultadoPorCaminhao: 31227.45,
-  // indicadores operacionais / combustível
-  qtdCaminhao: 2,
-  viagensFaturadas: 50,
-  volumePetroleo: 2421.72,
-  kmRodados: 14290.3,
-  capacidadeFrota: 0.839,
-  tempoCiclo: '10:39 hrs',
-  viagensCaminhaoDia: 0.8333,
-  consumoGnlKg: 5005.34,
-  consumoGnlM3: 11.12,
-  custoMedioViagem: 462.09,
-  kmPorKg: 2.86,
-  custoCombKm: 1.32,
-  receitaPorViagem: 3833.68,
-  receitaPorKm: 13.69,
-  lucroPorViagem: 3059.72
+/* ============ RESULTADO GERENCIAL (mensal, por mês fechado) ============
+   Cada mês fechado é uma entrada deste objeto, com a chave no formato
+   'AAAA-MM'. Quando junho fechar, basta copiar o bloco de maio, trocar a
+   chave para '2026-06', preencher os números e descomentar — o seletor de
+   mês na aba "Histórico" passa a listar o novo mês automaticamente.        */
+const GERENCIAL_MESES = {
+  '2026-05': {
+    periodo: 'Maio/26',
+    fatTotal: 191684,
+    combustivelGNL: 23104.57,
+    margemContrib: 168579.43,
+    custoMotoristas: 24405.81,
+    custoCaminhaoLoc: 34000,
+    custoTanque: 16155.72,
+    custoManutencao: 3390,
+    custoSeguro: 0,
+    custoRastreamento: 0,
+    custoAdministracao: 10173,
+    custoOutros: 18000,
+    custoFixoTotal: 106124.53,
+    custoOperTotal: 129229.10,
+    ebitda: 62454.90,
+    depreciacao: 0,
+    resultadoOper: 62454.90,
+    juros: 0,
+    resultadoLiquido: 62454.90,
+    resultadoPorCaminhao: 31227.45,
+    // indicadores operacionais / combustível
+    qtdCaminhao: 2,
+    viagensFaturadas: 50,
+    volumePetroleo: 2421.72,
+    kmRodados: 14290.3,
+    capacidadeFrota: 0.839,
+    tempoCiclo: '10:39 hrs',
+    viagensCaminhaoDia: 0.8333,
+    consumoGnlKg: 5005.34,
+    consumoGnlM3: 11.12,
+    custoMedioViagem: 462.09,
+    kmPorKg: 2.86,
+    custoCombKm: 1.32,
+    receitaPorViagem: 3833.68,
+    receitaPorKm: 13.69,
+    lucroPorViagem: 3059.72
+  },
+
+  /* ---- MODELO PARA JUNHO (descomente e preencha quando o mês fechar) ----
+  '2026-06': {
+    periodo: 'Junho/26',
+    fatTotal: 0,
+    combustivelGNL: 0,
+    margemContrib: 0,
+    custoMotoristas: 0,
+    custoCaminhaoLoc: 0,
+    custoTanque: 0,
+    custoManutencao: 0,
+    custoSeguro: 0,
+    custoRastreamento: 0,
+    custoAdministracao: 0,
+    custoOutros: 0,
+    custoFixoTotal: 0,
+    custoOperTotal: 0,
+    ebitda: 0,
+    depreciacao: 0,
+    resultadoOper: 0,
+    juros: 0,
+    resultadoLiquido: 0,
+    resultadoPorCaminhao: 0,
+    qtdCaminhao: 2,
+    viagensFaturadas: 0,
+    volumePetroleo: 0,
+    kmRodados: 0,
+    capacidadeFrota: 0,
+    tempoCiclo: '00:00 hrs',
+    viagensCaminhaoDia: 0,
+    consumoGnlKg: 0,
+    consumoGnlM3: 0,
+    custoMedioViagem: 0,
+    kmPorKg: 0,
+    custoCombKm: 0,
+    receitaPorViagem: 0,
+    receitaPorKm: 0,
+    lucroPorViagem: 0
+  },
+  ------------------------------------------------------------------------ */
 };
+
+/* Mês selecionado na aba Histórico (default = mês mais recente cadastrado). */
+let GER_MES_SEL = Object.keys(GERENCIAL_MESES).sort().pop();
 
 /* ============ CONFIGURAÇÃO DA FONTE ONLINE ============ */
 /* Cole abaixo, entre as aspas, a URL PÚBLICA da base (CSV, JSON ou XLSX).
@@ -642,7 +720,7 @@ function renderKPIs(d){
   const ticket=nCte?totLiq/nCte:0;
   const mPet=nCte?totPet/nCte:0;
   const mCarga=avg(d,'valorCarga');
-  const margem=totFrete-totLiq;
+  const ticketBruto=nCte?totBruto/nCte:0;
   const cards=[
     {ico:'truck',label:'Frete Faturado (R$) - Total',val:BRL.format(totFrete),sub:`Bruto faturado nos CT-e`},
     {ico:'flame',label:'Custo GNL (combustível)',val:BRL.format(totGnl),sub:`${NUM.format(sum(d,'gnlAbast'))} Kg abastecidos`},
@@ -651,7 +729,7 @@ function renderKPIs(d){
     {ico:'doc',label:'CT-e Emitidos',val:NUM.format(nCte),u:'viagens',sub:`Ticket médio: <b>${BRL.format(ticket)}</b>`},
     {ico:'drop',label:'Petróleo Transportado',val:NUM.format(totPet),u:'m³',sub:`Média/viagem: <b>${NUM3.format(mPet)} m³</b>`},
     {ico:'box',label:'Valor da Carga',val:BRL.format(totCarga),sub:`Média da carga: <b>${BRL.format(mCarga)}</b>`},
-    {ico:'pct',label:'Margem (Frete − Líquido)',val:BRL.format(margem),sub:`${totFrete?NUM.format(margem/totFrete*100):0}% do frete faturado`},
+    {ico:'pct',label:'Valor Médio por Viagem',val:BRL.format(ticket),sub:`Bruto/viagem: <b>${BRL.format(ticketBruto)}</b>`},
   ];
   $('kpiGrid').innerHTML=cards.map((c,i)=>`
     <div class="kpi ${c.cls||''} reveal" style="animation-delay:${.04*i}s">
@@ -664,9 +742,17 @@ function renderKPIs(d){
 }
 
 /* ============ RESULTADO GERENCIAL ============ */
+function populateGerMonths(){
+  const sel=$('fGerMes'); if(!sel)return;
+  const chaves=Object.keys(GERENCIAL_MESES).sort().reverse(); // mais recente primeiro
+  if(!chaves.includes(GER_MES_SEL)) GER_MES_SEL=chaves[0];
+  sel.innerHTML=chaves.map(k=>`<option value="${k}"${k===GER_MES_SEL?' selected':''}>${GERENCIAL_MESES[k].periodo}</option>`).join('');
+}
 function renderGerencial(){
-  const g=GERENCIAL;
-  $('gerNote').textContent=`Filial Mossoró · ${g.periodo} · base mensal · não afetado pelos filtros`;
+  populateGerMonths();
+  const g=GERENCIAL_MESES[GER_MES_SEL];
+  if(!g){$('gerGrid').innerHTML='<div class="empty">Nenhum mês fechado cadastrado.</div>';$('dreTable').innerHTML='';$('gerInd').innerHTML='';return;}
+  $('gerNote').textContent=`Filial Mossoró · ${g.periodo} · base mensal`;
   const margPct=g.fatTotal?g.margemContrib/g.fatTotal*100:0;
   const combPct=g.fatTotal?g.combustivelGNL/g.fatTotal*100:0;
   const ebitdaPct=g.fatTotal?g.ebitda/g.fatTotal*100:0;
@@ -872,7 +958,7 @@ function renderWeekly(){
   const opTotals={};cavalos.forEach(c=>opTotals[c]=0);
   let opDen=0;
 
-  const body=weeks.map(w=>{
+  const body=[...weeks].reverse().map(w=>{
     const wr=rows.filter(r=>r.data>=w.start&&r.data<=w.end);
     const n=wr.length;
     const m3=wr.reduce((t,r)=>t+(r.petroleo||0),0);
@@ -923,6 +1009,14 @@ function render(){
   const d=getFiltered();
   const s=$('fDateStart').value,e=$('fDateEnd').value;
   $('rangeInfo').innerHTML=`Período: <b>${s?brDate(s):'—'}</b> a <b>${e?brDate(e):'—'}</b> · <b>${d.length}</b> CT-e`;
+  // intervalo efetivo (usa o filtro; se vazio, usa o min/max dos dados exibidos)
+  const ds=d.map(r=>r.data).filter(Boolean).sort();
+  const pIni=s||ds[0]||'', pFim=e||ds[ds.length-1]||'';
+  const rangeTxt=(pIni&&pFim)?`${brDate(pIni)} – ${brDate(pFim)}`:'sem dados no período';
+  const setNote=(id,base)=>{const el=$(id);if(el)el.innerHTML=`${base} · <b style="color:var(--lime)">${rangeTxt}</b>`;};
+  setNote('evoNote','série diária por CT-e');
+  setNote('vehNote','cavalo mecânico &amp; reboque');
+  setNote('insNote','gerados a partir da base filtrada');
   safe(()=>renderKPIs(d),'kpis');
   safe(()=>renderGerencial(),'gerencial');
   safe(()=>renderCharts(d),'charts');
@@ -1163,6 +1257,15 @@ async function exportPDF(){
 
 /* ============ EVENTOS ============ */
 ['fDateStart','fDateEnd','fCavalo','fReboque'].forEach(id=>$(id).addEventListener('change',render));
+// alternância de abas Visão Geral / Histórico
+document.querySelectorAll('#tabs .tab').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('#tabs .tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  $('dashboard').dataset.view=btn.dataset.view;
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+// troca do mês no Resultado Gerencial
+$('fGerMes').addEventListener('change',e=>{GER_MES_SEL=e.target.value;renderGerencial();});
 $('btnReset').addEventListener('click',()=>{populateFilters();render();});
 $('btnImport').addEventListener('click',()=>$('fileInput').click());
 $('fileInput').addEventListener('change',e=>{if(e.target.files[0]){handleFile(e.target.files[0]);e.target.value='';}});
