@@ -450,6 +450,22 @@
     </div>
   </div>
 
+  <!-- GNL CONSUMPTION -->
+  <div class="sec-title reveal v-geral"><span class="bar"></span><h2>Consumo de Combustível — GNL</h2><span id="gnlNote">indicadores de abastecimento e comparativo com Diesel</span></div>
+  <section class="kpi-grid v-geral" id="gnlKpiGrid"></section>
+  <div class="grid c2 v-geral" style="margin-top:16px">
+    <div class="panel reveal">
+      <h3><span class="dot"></span>Custo médio por viagem — GNL vs. Diesel (estimado)</h3>
+      <div class="p-sub">Comparativo do gasto médio de combustível por viagem (ida + volta)</div>
+      <div class="chart-wrap mid"><canvas id="chGnlDiesel"></canvas></div>
+    </div>
+    <div class="panel reveal">
+      <h3><span class="dot"></span>Premissas do comparativo Diesel</h3>
+      <div class="p-sub">Parâmetros usados na simulação — ajustáveis no código (CONFIG_DIESEL)</div>
+      <div class="ger-ind" id="gnlPremissas"></div>
+    </div>
+  </div>
+
   <!-- INSIGHTS -->
   <div class="sec-title reveal v-geral"><span class="bar"></span><h2>Insights Automáticos</h2><span id="insNote">gerados a partir da base filtrada</span></div>
   <section class="insights v-geral" id="insights"></section>
@@ -569,6 +585,17 @@ const GERENCIAL_MESES = {
 
 /* Mês selecionado na aba Histórico (default = mês mais recente cadastrado). */
 let GER_MES_SEL = Object.keys(GERENCIAL_MESES).sort().pop();
+
+/* ============ COMPARATIVO GNL x DIESEL (simulação) ============
+   Parâmetros editáveis para estimar quanto custaria a mesma viagem se
+   feita por um caminhão a Diesel (cavalo 3 eixos + reboque tanque 4 eixos).
+   Ajuste os valores abaixo conforme sua frota/realidade. */
+const CONFIG_DIESEL = {
+  precoLitro: 6.00,        // R$/litro — preço médio Diesel S10 no RN (ajustar conforme ANP/posto local)
+  kmPorTrecho: 136,        // km por trecho (ida e volta, cada um)
+  consumoCarregadoKmL: 1.9,// km/l do conjunto com ~62 ton (trecho de ida, carregado)
+  consumoVazioKmL: 3.0     // km/l do conjunto com ~20 ton (trecho de volta)
+};
 
 /* ============ CONFIGURAÇÃO DA FONTE ONLINE ============ */
 /* Cole abaixo, entre as aspas, a URL PÚBLICA da base (CSV, JSON ou XLSX).
@@ -739,6 +766,69 @@ function renderKPIs(d){
         <div class="k-sub">${c.sub}</div>
       </div>
     </div>`).join('');
+}
+
+/* ============ INDICADORES DE CONSUMO — GNL ============ */
+function renderGnlIndicators(d){
+  const rows=d.filter(r=>(r.gnlAbast||0)>0);
+  const nViagens=rows.length;
+  const totalKg=sum(rows,'gnlAbast');
+  const totalGasto=sum(rows,'gnlViagem');
+  const consumoMedioKg=nViagens?totalKg/nViagens:0;
+  const custoMedioViagem=nViagens?totalGasto/nViagens:0;
+  const custoPorKg=totalKg?totalGasto/totalKg:0;
+  const kmTotal=nViagens*CONFIG_DIESEL.kmPorTrecho*2;
+  const kmPorKg=totalKg?kmTotal/totalKg:0;
+
+  // ---- Simulação Diesel para o mesmo conjunto de viagens ----
+  const litrosPorViagem=(CONFIG_DIESEL.kmPorTrecho/CONFIG_DIESEL.consumoCarregadoKmL)+(CONFIG_DIESEL.kmPorTrecho/CONFIG_DIESEL.consumoVazioKmL);
+  const custoDieselPorViagem=litrosPorViagem*CONFIG_DIESEL.precoLitro;
+  const custoDieselTotal=custoDieselPorViagem*nViagens;
+  const economiaPorViagem=custoDieselPorViagem-custoMedioViagem;
+  const economiaTotal=custoDieselTotal-totalGasto;
+  const economiaPct=custoDieselPorViagem?(economiaPorViagem/custoDieselPorViagem*100):0;
+
+  const cards=[
+    {ico:'flame',label:'GNL Abastecido',val:NUM.format(totalKg),u:'kg',sub:`em <b>${NUM.format(nViagens)}</b> viagens com abastecimento`},
+    {ico:'gauge',label:'Consumo Médio / Viagem',val:NUM.format(consumoMedioKg),u:'kg',sub:`equivalente a <b>${NUM.format(kmPorKg)} km/kg</b>`},
+    {cls:'accent',ico:'cash',label:'Gasto Total GNL',val:BRL.format(totalGasto),sub:`Custo médio/viagem: <b>${BRL.format(custoMedioViagem)}</b>`},
+    {ico:'coins',label:'Custo por Kg de GNL',val:BRL.format(custoPorKg),sub:'gasto total ÷ kg abastecidos'},
+    {ico:'truck',label:'Diesel Equivalente (estimado)',val:BRL.format(custoDieselTotal),sub:`${BRL.format(custoDieselPorViagem)} por viagem · ${NUM.format(litrosPorViagem)} L`},
+    {cls:economiaTotal>=0?'accent':'',ico:'pct',label:'Economia Estimada vs. Diesel',val:BRL.format(economiaTotal),sub:`${NUM.format(economiaPct)}% mais barato por viagem (${BRL.format(economiaPorViagem)})`},
+  ];
+  $('gnlKpiGrid').innerHTML=cards.map((c,i)=>`
+    <div class="kpi ${c.cls||''} reveal" style="animation-delay:${.04*i}s">
+      <div class="k-top"><div class="k-label">${c.label}</div><div class="k-ico">${svgIco(ICONS[c.ico])}</div></div>
+      <div>
+        <div class="k-val">${c.val}${c.u?`<span class="u">${c.u}</span>`:''}</div>
+        <div class="k-sub">${c.sub}</div>
+      </div>
+    </div>`).join('');
+
+  // Premissas (painel lateral)
+  const I=(l,v)=>`<div class="gi"><div class="gi-l">${l}</div><div class="gi-v">${v}</div></div>`;
+  $('gnlPremissas').innerHTML=[
+    I('Trecho (ida/volta)', `${NUM.format(CONFIG_DIESEL.kmPorTrecho)} <small>km cada</small>`),
+    I('Carga na ida', `~62 ton <small>(carregado)</small>`),
+    I('Carga na volta', `~20 ton <small>(retorno)</small>`),
+    I('Consumo carregado', `${NUM.format(CONFIG_DIESEL.consumoCarregadoKmL)} <small>km/l</small>`),
+    I('Consumo vazio/retorno', `${NUM.format(CONFIG_DIESEL.consumoVazioKmL)} <small>km/l</small>`),
+    I('Preço Diesel S10 (RN)', `${BRL.format(CONFIG_DIESEL.precoLitro)} <small>/litro</small>`),
+    I('Litros por viagem (estimado)', `${NUM.format(litrosPorViagem)} <small>L</small>`),
+  ].join('');
+
+  // ---- Gráfico comparativo ----
+  if(typeof Chart!=='undefined' && $('chGnlDiesel')){
+    charts.gnlDiesel && charts.gnlDiesel.destroy();
+    charts.gnlDiesel=new Chart($('chGnlDiesel'),{type:'bar',
+      data:{labels:['GNL (real)','Diesel (estimado)'],datasets:[{
+        data:[+custoMedioViagem.toFixed(2),+custoDieselPorViagem.toFixed(2)],
+        backgroundColor:[C.lime,'#6b6f68'],borderRadius:9,maxBarThickness:80
+      }]},
+      options:commonOpts({plugins:{legend:{display:false},tooltip:{...commonOpts().plugins.tooltip,callbacks:{label:c=>' '+BRL.format(c.parsed.y??c.parsed)}}},
+      scales:{x:{grid:{display:false},ticks:{color:C.white,font:{family:'Archivo',weight:'700',size:12}}},
+        y:{grid:{color:'#1c1f1c'},ticks:{color:C.tick,font:{family:'Manrope',size:10.5},callback:v=>'R$ '+v}}}})});
+  }
 }
 
 /* ============ RESULTADO GERENCIAL ============ */
@@ -1020,6 +1110,7 @@ function render(){
   safe(()=>renderKPIs(d),'kpis');
   safe(()=>renderGerencial(),'gerencial');
   safe(()=>renderCharts(d),'charts');
+  safe(()=>renderGnlIndicators(d),'gnl');
   safe(()=>renderInsights(d),'insights');
   safe(()=>renderWeekly(),'weekly');
   $('footStamp').textContent=new Date().toLocaleString('pt-BR');
