@@ -591,7 +591,7 @@ let GER_MES_SEL = Object.keys(GERENCIAL_MESES).sort().pop();
    feita por um caminhão a Diesel (cavalo 3 eixos + reboque tanque 4 eixos).
    Ajuste os valores abaixo conforme sua frota/realidade. */
 const CONFIG_DIESEL = {
-  precoLitro: 7.05,        // R$/litro — preço médio Diesel S10 no RN (ajustar conforme ANP/posto local)
+  precoLitro: 6.00,        // R$/litro — preço médio Diesel S10 no RN (ajustar conforme ANP/posto local)
   kmPorTrecho: 136,        // km por trecho (ida e volta, cada um)
   consumoCarregadoKmL: 1.9,// km/l do conjunto com ~62 ton (trecho de ida, carregado)
   consumoVazioKmL: 3.0     // km/l do conjunto com ~20 ton (trecho de volta)
@@ -788,6 +788,24 @@ function renderGnlIndicators(d){
   const economiaTotal=custoDieselTotal-totalGasto;
   const economiaPct=custoDieselPorViagem?(economiaPorViagem/custoDieselPorViagem*100):0;
 
+  // ---- Consumo por cavalo ----
+  const cavCards=[];
+  const byCav={};
+  rows.forEach(r=>{
+    if(!r.cavalo)return;
+    if(!byCav[r.cavalo])byCav[r.cavalo]={kg:0,viagens:0,km:0};
+    byCav[r.cavalo].kg+=r.gnlAbast||0;
+    byCav[r.cavalo].viagens+=1;
+    byCav[r.cavalo].km+=(CONFIG_DIESEL.kmPorTrecho*2);
+  });
+  Object.keys(byCav).sort().forEach(placa=>{
+    const cav=byCav[placa];
+    const mediKg=cav.viagens?cav.kg/cav.viagens:0;
+    const kmKg=cav.kg?cav.km/cav.kg:0;
+    cavCards.push({ico:'truck',label:`Placa ${placa} — Consumo GNL`,val:NUM.format(mediKg),u:'kg/viagem',
+      sub:`eficiência: <b>${NUM.format(kmKg)} km/kg</b> · <b>${NUM.format(cav.viagens)}</b> viagens`});
+  });
+
   const cards=[
     {ico:'flame',label:'GNL Abastecido',val:NUM.format(totalKg),u:'kg',sub:`em <b>${NUM.format(nViagens)}</b> viagens com abastecimento`},
     {ico:'gauge',label:'Consumo Médio / Viagem',val:NUM.format(consumoMedioKg),u:'kg',sub:`equivalente a <b>${NUM.format(kmPorKg)} km/kg</b>`},
@@ -795,6 +813,7 @@ function renderGnlIndicators(d){
     {ico:'coins',label:'Custo por Kg de GNL',val:BRL.format(custoPorKg),sub:'gasto total ÷ kg abastecidos'},
     {ico:'truck',label:'Diesel Equivalente (estimado)',val:BRL.format(custoDieselTotal),sub:`${BRL.format(custoDieselPorViagem)} por viagem · ${NUM.format(litrosPorViagem)} L`},
     {cls:economiaTotal>=0?'accent':'',ico:'pct',label:'Economia Estimada vs. Diesel',val:BRL.format(economiaTotal),sub:`${NUM.format(economiaPct)}% mais barato por viagem (${BRL.format(economiaPorViagem)})`},
+    ...cavCards,
   ];
   $('gnlKpiGrid').innerHTML=cards.map((c,i)=>`
     <div class="kpi ${c.cls||''} reveal" style="animation-delay:${.04*i}s">
