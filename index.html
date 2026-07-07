@@ -1531,78 +1531,99 @@ async function exportPDF(){
   if(typeof html2canvas==='undefined' || !window.jspdf){toast('Exportação requer conexão (biblioteca não carregou).',true);return;}
   const {jsPDF}=window.jspdf;
   const dash=$('dashboard');
-  const btn=$('btnPdf');const old=btn.innerHTML;
+  const btn=$('btnPdf');const oldLabel=btn.innerHTML;
   btn.innerHTML='Gerando PDF…';btn.style.pointerEvents='none';
   window.scrollTo(0,0);
   try{
-    await new Promise(r=>setTimeout(r,500)); // aguarda animações dos gráficos
+    await new Promise(r=>setTimeout(r,500));
 
     const pdf=new jsPDF('p','mm','a4');
     const pw=pdf.internal.pageSize.getWidth();   // 210
     const ph=pdf.internal.pageSize.getHeight();  // 297
-    const margin=8, gap=3;
+    const margin=8, gap=4;
     const usableW=pw-margin*2;
     const usableH=ph-margin*2;
     const fullW=dash.scrollWidth;
-    let cursorY=margin;
+
     const fillBg=()=>{pdf.setFillColor(10,11,10);pdf.rect(0,0,pw,ph,'F');};
     fillBg();
 
-    // Captura apenas os elementos visíveis na aba ativa
+    // ── Cabeçalho compacto desenhado nativamente (não ocupa bloco inteiro) ──
     const curView=dash.dataset.view;
-    const blocks=Array.from(dash.children).filter(el=>{
-      if(el.id==='toast')return false;
-      if(el.offsetHeight===0)return false;
-      // filtra itens que pertencem a outra aba
-      const cls=[...el.classList];
-      const isGeral=cls.includes('v-geral');
-      const isHist=cls.includes('v-hist');
-      const isComp=cls.includes('v-comp');
-      if(isGeral&&curView!=='geral')return false;
-      if(isHist&&curView!=='hist')return false;
-      if(isComp&&curView!=='comp')return false;
-      return true;
-    });
+    const viewLabel={'geral':'Visão Dia a Dia','hist':'Visão Gerencial — Fechamento Mensal','comp':'Comparativo Mensal'}[curView]||'';
+    const stamp=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    pdf.setFillColor(16,18,14);
+    pdf.rect(0,0,pw,16,'F');
+    pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.setTextColor(183,214,50);
+    pdf.text('GRUPO MINAS PORT — Dashboard de Transporte de Petróleo',margin,7);
+    pdf.setFont('helvetica','normal');pdf.setFontSize(7.5);pdf.setTextColor(160,165,155);
+    pdf.text(viewLabel,margin,12);
+    pdf.text('Gerado em: '+stamp,pw-margin,12,{align:'right'});
+    // linha separadora
+    pdf.setDrawColor(43,58,20);pdf.setLineWidth(0.4);pdf.line(margin,15,pw-margin,15);
+    let cursorY=18; // começa logo após o cabeçalho
 
-    for(const el of blocks){
+    // ── Bloco auxiliar: coloca imagem respeitando quebra de página ──
+    async function addBlock(el){
       const isTitle=el.classList.contains('sec-title');
       const canvas=await captureEl(el,fullW);
       const imgW=usableW;
       const imgH=canvas.height*imgW/canvas.width;
-      const img=canvas.toDataURL('image/png');
 
-      // título de seção não fica órfão no rodapé da página
-      if(isTitle && cursorY+imgH+50>ph-margin){pdf.addPage();fillBg();cursorY=margin;}
+      // título de seção não fica sozinho no final da página
+      if(isTitle){
+        // reserva 60mm para o conteúdo que virá após o título
+        if(cursorY+imgH+60>ph-margin){pdf.addPage();fillBg();cursorY=margin;}
+      }
 
-      if(imgH<=usableH-margin){
+      if(imgH<=usableH){
         if(cursorY+imgH>ph-margin){pdf.addPage();fillBg();cursorY=margin;}
-        pdf.addImage(img,'PNG',margin,cursorY,imgW,imgH,'','FAST');
+        pdf.addImage(canvas.toDataURL('image/png'),'PNG',margin,cursorY,imgW,imgH,'','FAST');
         cursorY+=imgH+gap;
       }else{
-        // bloco mais alto que uma página: começa em página nova e fatia
-        if(cursorY>margin+2){pdf.addPage();fillBg();cursorY=margin;}
+        // bloco maior que uma página: fatia sem quebrar no meio
+        if(cursorY>margin+4){pdf.addPage();fillBg();cursorY=margin;}
         const pxPerMm=canvas.width/imgW;
-        const pageSlicePx=Math.floor((usableH-margin)*pxPerMm);
+        const slicePx=Math.floor((ph-margin*2)*pxPerMm);
         let srcY=0;
         while(srcY<canvas.height){
           if(srcY>0){pdf.addPage();fillBg();cursorY=margin;}
-          const sliceH=Math.min(pageSlicePx,canvas.height-srcY);
+          const h=Math.min(slicePx,canvas.height-srcY);
           const tmp=document.createElement('canvas');
-          tmp.width=canvas.width;tmp.height=sliceH;
-          tmp.getContext('2d').drawImage(canvas,0,srcY,canvas.width,sliceH,0,0,canvas.width,sliceH);
-          pdf.addImage(tmp.toDataURL('image/png'),'PNG',margin,cursorY,imgW,sliceH/pxPerMm,'','FAST');
-          cursorY+=sliceH/pxPerMm+gap;
-          srcY+=sliceH;
+          tmp.width=canvas.width;tmp.height=h;
+          tmp.getContext('2d').drawImage(canvas,0,srcY,canvas.width,h,0,0,canvas.width,h);
+          pdf.addImage(tmp.toDataURL('image/png'),'PNG',margin,cursorY,imgW,h/pxPerMm,'','FAST');
+          cursorY+=h/pxPerMm+gap;
+          srcY+=h;
         }
       }
     }
-    const stamp=new Date().toISOString().slice(0,10);
-    pdf.save(`Dashboard_Transporte_Fluidos_${stamp}.pdf`);
+
+    // ── Seleciona blocos da aba ativa, excluindo topbar e tabs (são UI de navegação) ──
+    const blocks=Array.from(dash.children).filter(el=>{
+      if(el.id==='toast')return false;
+      if(el.offsetHeight===0)return false;
+      // exclui cabeçalho e navegação — já desenhamos o header compacto acima
+      if(el.classList.contains('topbar'))return false;
+      if(el.classList.contains('tabs'))return false;
+      if(el.classList.contains('foot'))return false;
+      // filtra pela aba ativa
+      const cls=[...el.classList];
+      if(cls.includes('v-geral')&&curView!=='geral')return false;
+      if(cls.includes('v-hist')&&curView!=='hist')return false;
+      if(cls.includes('v-comp')&&curView!=='comp')return false;
+      return true;
+    });
+
+    for(const el of blocks) await addBlock(el);
+
+    const fname=new Date().toISOString().slice(0,10);
+    pdf.save(`Dashboard_Transporte_Fluidos_${fname}.pdf`);
     toast('PDF exportado com sucesso!');
   }catch(err){
     toast('Erro ao exportar PDF: '+err.message,true);
   }finally{
-    btn.innerHTML=old;btn.style.pointerEvents='';
+    btn.innerHTML=oldLabel;btn.style.pointerEvents='';
   }
 }
 
