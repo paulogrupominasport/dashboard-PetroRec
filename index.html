@@ -939,9 +939,9 @@ function motSt(viagens,cavDias){
   return{mOk,cOk,pOk,
     cardCls:pOk?'premio':mOk?'parcial':'nao',
     badgeCls:pOk?'ok':mOk?'par':'no',
-    badgeTxt:pOk?'PRÊMIO ATINGIDO':mOk?'CAM. INSUFICIENTE':`FALTAM ${PREMIO_META-viagens} VIAGENS${PREMIO_META-viagens!==1?'':''}`,
+    badgeTxt:pOk?'PRÊMIO ATINGIDO':mOk?'CAMINHÃO ATIVO. INSUFICIENTE':`FALTAM ${PREMIO_META-viagens} VIAGENS${PREMIO_META-viagens!==1?'':''}`,
     metaBadge:mOk?'<span class="b-sim">✔ SIM</span>':'<span class="b-nao">✘ NÃO</span>',
-    premioBadge:pOk?`<span class="b-sim">✔ ${BRL.format(viagens*PREMIO_VALOR)}</span>`:mOk?`<span class="b-par">⚠ Cam. ${cavDias}d</span>`:'<span class="b-nao">✘ Sem prêmio</span>',
+    premioBadge:pOk?`<span class="b-sim">✔ ${BRL.format(viagens*PREMIO_VALOR)}</span>`:mOk?`<span class="b-par">⚠ Caminhão Ativo. ${cavDias}d</span>`:'<span class="b-nao">✘ Sem prêmio</span>',
   };
 }
 
@@ -996,7 +996,7 @@ function renderGerMotoristas(anoMes,periodo){
   return `<div class="mot-tbl-wrap">
     <div class="mot-tbl-title">Desempenho de Motoristas — ${periodo}</div>
     <table class="mot-tbl">
-      <thead><tr><th style="text-align:left">Motorista</th><th>Viagens</th><th>% Meta</th><th>Meta Atingida</th><th>Dias Cam.</th><th>Prêmio</th></tr></thead>
+      <thead><tr><th style="text-align:left">Motorista</th><th>Viagens</th><th>% Meta</th><th>Meta Atingida</th><th>Dias Caminhão Ativo.</th><th>Prêmio</th></tr></thead>
       <tbody>${nomes.map(m=>{const d=data[m];return `<tr>
         <td style="text-align:left">${m}</td><td>${d.viagens}</td>
         <td>${NUM.format(d.viagens/PREMIO_META*100)}%</td>
