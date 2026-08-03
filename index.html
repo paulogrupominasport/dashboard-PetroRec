@@ -1018,14 +1018,31 @@ function renderGerencial(){
   $('gerNote').innerHTML=g.aberto
     ? `Filial Mossoró · <b style="color:#c8a020">${g.periodo}</b> · fechamento em andamento — atualiza sozinho conforme os CT-e entram na base`
     : `Filial Mossoró · ${g.periodo} · mês fechado`;
-  const ebitdaPct=(g.margemEbitda||0)*100,combPct=g.fatTotal?g.combustivelGNL/g.fatTotal*100:0,liqPct=g.fatTotal?g.resultadoLiquido/g.fatTotal*100:0;
+  const combPct=g.fatTotal?g.combustivelGNL/g.fatTotal*100:0;
+  /* mês imediatamente anterior ao selecionado (para o comparativo do rodapé do card) */
+  const prevKey=Object.keys(GERENCIAL_MESES).sort().filter(k=>k<GER_MES_SEL).pop();
+  const prev=prevKey?GERENCIAL_MESES[prevKey]:null;
+  const prevLbl=prev?prev.periodo.replace(' — parcial',''):'';
+  /* menorEhMelhor = true nos cards de custo (queda vira verde) */
+  function vsAnterior(campo,menorEhMelhor){
+    if(!prev)return `<span style="color:var(--txt-dim)">sem mês anterior para comparar</span>`;
+    const a=g[campo],b=prev[campo];
+    if(typeof a!=='number'||typeof b!=='number'||!b)return `<span style="color:var(--txt-dim)">vs ${prevLbl}: —</span>`;
+    const dif=(a-b)/Math.abs(b)*100, bom=menorEhMelhor?dif<=0:dif>=0;
+    const seta=dif>0?'▲':dif<0?'▼':'▬';
+    return `<b style="color:${bom?'var(--lime)':'#e2725b'}">${seta} ${dif>0?'+':''}${NUM.format(dif)}%</b>`
+         + ` <span style="color:var(--txt-dim)">vs ${prevLbl} (${BRL.format(b)})</span>`;
+  }
+  const parcial=g.aberto?` <span style="color:#c8a020">· mês parcial</span>`:'';
   const cards=[
-    {ico:'wallet',cls:'ger-pos',label:'Faturamento Total CT-e',val:BRL.format(g.fatTotal),sub:`${g.viagensFaturadas} viagens · GNL: <b>${NUM.format(combPct)}%</b>`},
-    {ico:'trend',cls:'ger-pos',label:'Receita Líquida',val:BRL.format(g.receitaLiquida),sub:`Receita Bruta: ${BRL.format(g.receitaBruta)}`},
-    {ico:'flame',cls:'ger-neg',label:'Custo Operacional Total',val:BRL.format(g.custoOperTotal),sub:`Fixos: ${BRL.format(g.custoFixoTotal)} · Var.: ${BRL.format(g.custoVariavelTotal)}`},
-    {ico:'coins',cls:'ger-pos',label:'EBITDA Operacional',val:BRL.format(g.ebitda),sub:`Margem EBITDA: <b>${NUM.format(ebitdaPct)}%</b>`},
-    {ico:'cash',cls:'ger-pos',label:'Resultado Líquido — Filial',val:BRL.format(g.resultadoLiquido),sub:`<b>${NUM.format(liqPct)}%</b> de margem`},
-    {ico:'truck',cls:'ger-pos',label:'Resultado Líquido / Caminhão',val:BRL.format(g.resultadoPorCaminhao),sub:`${g.qtdCaminhao} caminhões`},
+    // linha de cima — receita
+    {ico:'wallet',cls:'ger-pos',label:'Faturamento Total',val:BRL.format(g.fatTotal),sub:vsAnterior('fatTotal',false)+parcial},
+    {ico:'layers',cls:'ger-pos',label:'Receita Bruta',val:BRL.format(g.receitaBruta),sub:vsAnterior('receitaBruta',false)+parcial},
+    {ico:'trend',cls:'ger-pos',label:'Receita Líquida',val:BRL.format(g.receitaLiquida),sub:vsAnterior('receitaLiquida',false)+parcial},
+    // linha de baixo — custo e resultado
+    {ico:'flame',cls:'ger-neg',label:'Custo Combustível (GNL)',val:BRL.format(g.combustivelGNL),sub:`<b>${NUM.format(combPct)}%</b> do faturamento · `+vsAnterior('combustivelGNL',true)},
+    {ico:'coins',cls:'ger-neg',label:'Custo Operacional Total',val:BRL.format(g.custoOperTotal),sub:vsAnterior('custoOperTotal',true)+parcial},
+    {ico:'truck',cls:'ger-pos',label:'Lucro Líquido / Caminhão',val:BRL.format(g.resultadoPorCaminhao),sub:vsAnterior('resultadoPorCaminhao',false)+parcial},
   ];
   $('gerGrid').innerHTML=cards.map((c,i)=>`
     <div class="kpi ${c.cls||''} reveal" style="animation-delay:${.04*i}s">
