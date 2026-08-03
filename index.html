@@ -1097,6 +1097,27 @@ function renderGerencial(){
 
 const PREMIO_META=14,PREMIO_VALOR=100,PREMIO_MIN_DIAS=26;
 
+/* ===== PRÊMIOS EM VALOR FIXO (meses anteriores ao critério por viagem) =====
+   O cálculo "R$ 100 × nº de viagens" passou a valer a partir de Julho/26.
+   Maio e Junho/26 usam os valores fechados abaixo, por motorista.
+   Para voltar a calcular um mês por viagens, basta remover a chave dele.   */
+const PREMIOS_FIXOS = {
+  '2026-05':{'DEUZIMAR PAULINO':1600,'FRANCISCO CABRAL':1400,'HIGO FREIRE CORCINO':1800,'JOÃO GALDINO DA SILVA':1400},
+  '2026-06':{'DEUZIMAR PAULINO':1400,'FRANCISCO CABRAL':1200,'HIGO FREIRE CORCINO':1400,'JOÃO GALDINO DA SILVA':1400},
+};
+const PREMIOS_FIXOS_NOTA = {
+  '2026-05':'valores fixos — acumulado de Abril/Maio',
+  '2026-06':'valores fixos',
+};
+/* casa o nome mesmo que a planilha mude o sobrenome (compara os 2 primeiros nomes) */
+function premioFixo(anoMes,nome){
+  const t=PREMIOS_FIXOS[anoMes]; if(!t)return null;
+  if(Object.prototype.hasOwnProperty.call(t,nome))return t[nome];
+  const ini=s=>s.split(' ').slice(0,2).join(' ');
+  const hit=Object.keys(t).find(k=>ini(k)===ini(nome));
+  return hit===undefined?null:t[hit];
+}
+
 function motAgrupa(rows){const m={};rows.forEach(r=>{if(!r.motorista)return;if(!m[r.motorista])m[r.motorista]={viagens:0,cavalo:r.cavalo};m[r.motorista].viagens++;if(r.cavalo)m[r.motorista].cavalo=r.cavalo;});return m;}
 function diasCavFn(rows){const dc={};rows.forEach(r=>{if(!r.cavalo)return;if(!dc[r.cavalo])dc[r.cavalo]=new Set();dc[r.cavalo].add(r.data);});return dc;}
 
@@ -1152,7 +1173,17 @@ function motMesDados(anoMes){
   if(!anoMes)return{};
   const rows=(RAW&&RAW.length?RAW:INITIAL_DATA).filter(r=>r.data&&r.data.startsWith(anoMes));
   const dc=diasCavFn(rows),byMot=motAgrupa(rows),res={};
-  Object.entries(byMot).forEach(([m,{viagens,cavalo}])=>{const cavDias=dc[cavalo]?dc[cavalo].size:0;res[m]={viagens,cavalo,cavDias,...motSt(viagens,cavDias)};});
+  Object.entries(byMot).forEach(([m,{viagens,cavalo}])=>{
+    const cavDias=dc[cavalo]?dc[cavalo].size:0, st=motSt(viagens,cavDias);
+    const fixo=premioFixo(anoMes,m);
+    if(fixo!==null){                       // mês com prêmio em valor fixo
+      st.premioFixo=true; st.premioValor=fixo;
+      st.premioBadge=fixo>0?`<span class="b-sim">✔ ${BRL.format(fixo)}</span>`:'<span class="b-nao">✘ Sem prêmio</span>';
+    }else{
+      st.premioFixo=false; st.premioValor=st.pOk?viagens*PREMIO_VALOR:0;
+    }
+    res[m]={viagens,cavalo,cavDias,...st};
+  });
   return res;
 }
 
@@ -1160,7 +1191,7 @@ function renderGerMotoristas(anoMes,periodo){
   const data=motMesDados(anoMes),nomes=Object.keys(data).sort();
   if(!nomes.length)return '';
   return `<div class="mot-tbl-wrap">
-    <div class="mot-tbl-title">Desempenho de Motoristas — ${periodo}</div>
+    <div class="mot-tbl-title">Desempenho de Motoristas — ${periodo}${PREMIOS_FIXOS_NOTA[anoMes]?` <span style="font-weight:600;font-size:11px;color:#c8a020">· prêmios em ${PREMIOS_FIXOS_NOTA[anoMes]}</span>`:''}</div>
     <table class="mot-tbl">
       <thead><tr><th style="text-align:left">Motorista</th><th>Viagens</th><th>% Meta</th><th>Meta Atingida</th><th>Dias Caminhão Ativo.</th><th>Prêmio</th></tr></thead>
       <tbody>${nomes.map(m=>{const d=data[m];return `<tr>
@@ -1168,6 +1199,8 @@ function renderGerMotoristas(anoMes,periodo){
         <td>${NUM.format(d.viagens/PREMIO_META*100)}%</td>
         <td>${d.metaBadge}</td><td>${d.cavDias} dias</td><td>${d.premioBadge}</td>
       </tr>`;}).join('')}</tbody>
+      <tfoot><tr><td style="text-align:left">Total premiado</td><td colspan="4"></td>
+        <td>${BRL.format(nomes.reduce((t,m)=>t+(data[m].premioValor||0),0))}</td></tr></tfoot>
     </table>
   </div>`;
 }
@@ -1192,7 +1225,7 @@ function renderComparativo(){
     ${secHd('Operacional')}${row('Viagens Faturadas',g=>`${g.viagensFaturadas}`)}${row('Volume Petróleo (m³)',g=>`${NUM.format(g.volumePetroleo)} m³`)}${row('Km rodados',g=>`${NUM.format(g.kmRodados)} km`)}${rowPct('Utilização da Frota',g=>g.capacidadeFrota||0)}${row('Tempo médio de ciclo',g=>`${g.tempoCiclo||'—'}`)}${row('Viagens / caminhão / dia',g=>`${NUM.format(g.viagensCaminhaoDia||0)}`)}${row('Receita / Caminhão',g=>g.receitaPorCaminhao)}${row('Receita / Viagem',g=>g.receitaPorViagem)}${row('Receita / km',g=>g.receitaPorKm)}${row('Receita Líq. / Viagem',g=>g.lucroPorViagem)}
     ${secHd('Combustível — GNL')}${row('Consumo Total (kg)',g=>`${NUM.format(g.consumoGnlKg)} kg`)}${row('Consumo Médio / Viagem (kg)',g=>`${NUM.format(g.consumoMedioViagem||0)} kg`)}${row('Custo Total GNL',g=>g.combustivelGNL,'neg',true)}${row('Custo Médio / Viagem',g=>g.custoMedioViagem,'neg',true)}${row('Eficiência (km/kg)',g=>`${NUM.format(g.kmPorKg||0)}`)}${row('Custo Combustível / km',g=>g.custoCombKm,'neg',true)}
     ${secHd('Metas e Prêmios — Motoristas')}
-    <tr class="tot"><td colspan="${meses.length+1}" style="font-size:10px;color:var(--txt-dim);font-weight:600;padding:6px 10px">Meta: ${PREMIO_META} viagens/mês · Prêmio: R$${PREMIO_VALOR}/viagem · Caminhão: ≥${PREMIO_MIN_DIAS} dias operativo</td></tr>
+    <tr class="tot"><td colspan="${meses.length+1}" style="font-size:10px;color:var(--txt-dim);font-weight:600;padding:6px 10px">Meta: ${PREMIO_META} viagens/mês · Prêmio: R$${PREMIO_VALOR}/viagem · Caminhão: ≥${PREMIO_MIN_DIAS} dias operativo · Maio e Junho/26 com prêmios em valor fixo (o cálculo por viagem passou a valer em Julho/26)</td></tr>
     ${todosMotoristas.map(m=>motCompRow(m)).join('')}
   </tbody></table>`;
   if(typeof Chart==='undefined')return;
