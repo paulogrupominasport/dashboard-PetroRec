@@ -462,6 +462,16 @@
     .obs-tip{left:auto;right:0;top:auto;bottom:140%;transform:none}}
   @media(max-width:1180px){.ger-ind.c4{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:640px){.ger-ind.c4{grid-template-columns:1fr}}
+
+  .b-aj{display:inline-block;padding:3px 9px;border-radius:7px;font-size:11px;font-weight:800;background:#c8a02022;color:#e0c25a;border:1px solid #c8a02055;white-space:nowrap}
+  .premio-obs{font-size:10.5px;color:#d8c07a;font-weight:600;margin-top:4px;max-width:260px;margin-left:auto;white-space:normal;line-height:1.35;text-align:right}
+  .t-pill{display:inline-block;padding:2px 8px;border-radius:7px;font-family:'Archivo',sans-serif;font-weight:800;font-size:12px;white-space:nowrap}
+  .t-ok{background:#b7d63222;color:var(--lime);border:1px solid #b7d63255}
+  .t-at{background:#e2a23b22;color:#f0b75a;border:1px solid #e2a23b66}
+  .t-cr{background:#e06d6d22;color:#f08a8a;border:1px solid #e06d6d66}
+  .t-faixa{font-size:10px;color:var(--txt-dim);font-weight:600;margin-top:1px}
+  .t-pct{font-size:10.5px;color:var(--txt-dim);font-weight:600;white-space:normal}
+  .ciclo-tbl td{vertical-align:middle}
 </style>
 </head>
 <body>
@@ -829,7 +839,9 @@
 <li>O "Resultado Líquido" da planilha é <b>antes do IR/CSLL</b> (o imposto de renda é apurado na empresa como um todo). O painel mostra também um resultado após IR/CSLL <b>estimado</b> a 34% (referência Lucro Real), só como ordem de grandeza.</li>
 <li><b>Mão de obra com provisões</b> = linha Motoristas (salário, provisões, férias) + premiação.</li>
 <li><b>Por unidade</b>: valores do mês ÷ viagens, km rodados, m³ transportados ou barris (1 barril = 0,158987 m³, ou seja, 1 m³ = 6,2898 barris).</li>
-<li><b>Utilização da frota</b> = viagens ÷ (caminhões × dias do mês), já que cada caminhão faz no máximo 1 viagem por dia. <b>% ocioso</b> = dias-caminhão sem CT-e. As <b>paralisações</b> por veículo ou PetroRec vêm do cadastro de causas; dia sem causa cadastrada aparece como "sem causa".</li>
+<li><b>Utilização da frota</b> = viagens ÷ (caminhões × dias do mês). A capacidade total é de 2 viagens por dia (2 caminhões × 1 viagem). <b>Volume diário por caminhão</b> = volume ÷ caminhões ÷ dias do mês. <b>% ocioso</b> = dias sem CT-e de cada caminhão; pela regra da operação, todo dia parado conta como <b>paralisação do veículo</b> (defeito mecânico / manutenção), salvo outro motivo cadastrado.</li>
+<li><b>Tempos do ciclo</b>: relatório "Médias de Tempo no Período" do sistema de acompanhamento, com as faixas de cor do próprio relatório. Em outubro a soma das etapas e paradas (10h35) bate com o ciclo da planilha; de maio a setembro o sistema dá cerca de 1 h a mais. O "Viagem volta" de maio (121h56) é um registro em aberto no sistema e fica fora das somas. No relatório, "Viagem ida" de julho (02:54) e junho (02:55) aparece em vermelho, mas pela faixa (02:30–03:00) é atenção; o painel segue a faixa. Agosto tem 61 viagens no relatório e 60 faturadas.</li>
+<li><b>Fiscal</b> (Lucro Real, PIS/COFINS não cumulativo): débito de 9,25% sobre a receita dos CT-e; ICMS isento. Crédito estimado de 9,25% sobre as despesas que a Receita admite para transportadora: seguros RCTR-C, RC-DC e RC-V (SC COSIT 168/2019), manutenção/peças como insumo (Lei 10.833, art. 3º, II; PN COSIT 5/2018) e rastreamento (SC COSIT 228/2019). Locação do caminhão e prestação do tanque aparecem à parte como crédito em discussão: a Receita nega (SC COSIT 218/2019), o CARF tem decisões favoráveis. Não geram crédito: mão de obra, transporte de pessoal, rateio administrativo e o GNL (abatido no CT-e). O CT-e emitido não gera crédito para quem presta o serviço; o crédito do frete é do tomador (PetroRec). O crédito de ICMS não se aplica, pois a prestação é isenta.</li>
 <li><b>Ponto de equilíbrio</b> = custos fixos ÷ (receita líquida − custos variáveis) por viagem.</li>
 <li><b>Km e horas por motorista</b> são estimativas: km real do mês rateado pelas viagens; horas = tempo médio de ciclo × viagens. A base não traz km por viagem nem controle de jornada.</li>
 </ul>
@@ -842,15 +854,15 @@
 <li><b>Linha 52 — "Custo médio por viagem"</b> é só o custo de GNL por viagem; no painel ela está nomeada assim.</li>
 <li><b>Linhas 64 a 69 — Estrutura de custo</b>: maio a julho estão digitados e arredondados; agosto a outubro são fórmula. A base de comparação muda entre os meses.</li>
 <li><b>Maio</b>: a aba gerencial tem 2.421,72 m³ e 5.005,34 kg de GNL; a base de viagens (Compilado) soma 2.369,40 m³ e 5.535 kg. O painel usa a aba gerencial na DRE e a base nos detalhes por caminhão/motorista.</li>
-<li><b>Premiação</b>: em outubro a DRE lança R$ 4.100 (41 viagens × R$ 100), mas pela regra só Deuzimar (15) e Higo (14) atingiram 14 viagens, ou seja, R$ 2.900. Em julho a DRE tem R$ 5.600 e a regra dá R$ 5.900.</li>
+<li><b>Premiação</b>: em outubro só Deuzimar (15) e Higo (14) atingiram a meta; Francisco (R$ 700) e João (R$ 500) receberam pela quantidade de viagens porque o veículo estava com defeito, o que fecha os R$ 4.100 da DRE. Em julho a DRE tem R$ 5.600 e a regra dá R$ 5.900.</li>
 <li><b>Seguro</b>: a observação diz "de acordo com a quantidade de viagens", mas o valor é R$ 2.781,14 de julho a outubro, com 41 a 60 viagens. Confirmar se é fixo mensal.</li>
 <li><b>Prestação do tanque Fachinni (R$ 16.155,72/mês)</b>: se for o financiamento de um semirreboque da empresa (há menção a garantia de fábrica), pelo padrão de mercado ele é ativo: entra como depreciação + juros, abaixo do EBITDA. Se for locação, está certo como custo. Vale confirmar com a contabilidade, porque muda o EBITDA.</li>
-<li><b>Outubro</b>: a queda não é de mês parcial. O GHA7H54 rodou 29 dias, mas o GIT7C28 só 12 (sem viagem de 12 a 28/10). Com 41 viagens o mês ficou pouco acima do ponto de equilíbrio (~32 viagens).</li>
+<li><b>Outubro</b>: a queda não é de mês parcial. O GIT7C28 ficou parado por defeito de 12 a 28/10 e rodou só 12 dias (o GHA7H54 rodou 29). Com 41 viagens o mês ficou pouco acima do ponto de equilíbrio (~32 viagens).</li>
 </ul>
 <h4>Sem dado na planilha (campos "a informar")</h4>
 <ul>
-<li>Tempos de abastecimento, carregamento, viagem, descarga e emissão de NF-e/CT-e; causa das paralisações a partir de julho; requisições solicitadas pela PetroRec (o nº de agendamento só foi preenchido até julho); ICMS destacado e créditos de impostos.</li>
-<li>Para preencher, edite no código os blocos <b>TEMPOS_CICLO</b>, <b>PARALISACOES</b>, <b>REQUISICOES_PETROREC</b> e <b>FISCAL_MESES</b>. O painel passa a mostrar os valores sozinho.</li>
+<li>Tempos de emissão de NF-e e de CT-e; requisições solicitadas pela PetroRec (o nº de agendamento só foi preenchido até julho); crédito de PIS/COFINS efetivamente apurado pela contabilidade (o painel mostra a estimativa).</li>
+<li>Para preencher ou fechar um mês novo, edite no código os blocos <b>TEMPOS_CICLO</b>, <b>PARALISACOES</b>, <b>PREMIOS_AJUSTES</b>, <b>REQUISICOES_PETROREC</b> e <b>FISCAL_MESES</b>. O painel passa a mostrar os valores sozinho.</li>
 </ul>
 </div>
   <!-- TIME SERIES -->
@@ -1718,6 +1730,8 @@ function motMesDados(anoMes){
     }else{
       st.premioFixo=false; st.premioValor=st.pOk?viagens*PREMIO_VALOR:0;
     }
+    const aj=(PREMIOS_AJUSTES[anoMes]||{})[m];
+    if(aj){st.premioValor=aj.valor;st.premioAjuste=aj.obs;st.premioBadge=`<span class="b-aj" title="${aj.obs}">✔ ${BRL.format(aj.valor)} *</span>`;}
     res[m]={viagens,cavalo,cavDias,...st};
   });
   return res;
@@ -1733,7 +1747,7 @@ function renderGerMotoristas(anoMes,periodo){
       <tbody>${nomes.map(m=>{const d=data[m];return `<tr>
         <td style="text-align:left">${m}</td><td>${d.viagens}</td>
         <td>${NUM.format(d.viagens/PREMIO_META*100)}%</td>
-        <td>${d.metaBadge}</td><td>${d.cavDias} dias</td><td>${d.premioBadge}</td>
+        <td>${d.metaBadge}</td><td>${d.cavDias} dias</td><td>${d.premioBadge}${d.premioAjuste?`<div class="premio-obs">${d.premioAjuste}</div>`:''}</td>
       </tr>`;}).join('')}</tbody>
       <tfoot><tr><td style="text-align:left">Total premiado</td><td colspan="4"></td>
         <td>${BRL.format(nomes.reduce((t,m)=>t+(data[m].premioValor||0),0))}</td></tr></tfoot>
@@ -1832,11 +1846,22 @@ function renderTracao(){
    Enquanto um campo estiver null, o painel mostra "a informar".
    ===================================================================== */
 
-/* Paralisações: dias em que o caminhão ficou SEM viagem, com a causa.
-   causa: 'veiculo' (problema no caminhão/semirreboque) | 'petrorec' (sem
-   óleo, programação, fila…) | 'outros' (chuva/estrada, motorista…).
-   Os dias sem viagem são detectados sozinhos a partir da base; aqui você
-   só diz o MOTIVO. Dia sem motivo cadastrado aparece como "sem causa". */
+/* Paralisações: dias em que o caminhão ficou SEM viagem.
+   Regra da operação: todo dia sem viagem conta como paralisação do VEÍCULO
+   (defeito mecânico / manutenção) — PARALISACAO_PADRAO. Só cadastre aqui
+   um dia se o motivo for OUTRO: 'petrorec' (sem óleo, programação, fila…)
+   ou 'outros' (chuva/estrada, motorista…). As linhas abaixo apenas
+   detalham o motivo dos dias já documentados na aba Manutenção x Gastos. */
+const PARALISACAO_PADRAO = 'veiculo';
+
+/* Ajustes de premiação: substitui o prêmio calculado pela regra para um
+   motorista num mês (a coluna "Meta atingida" continua mostrando a regra). */
+const PREMIOS_AJUSTES = {
+  '2026-10':{
+    'FRANCISCO CABRAL':{valor:700, obs:'Meta não atingida por motivo de veículo com defeito, premiação paga de acordo com quantidade de viagens do mês.'},
+    'JOÃO GALDINO DA SILVA':{valor:500, obs:'Meta não atingida por motivo de veículo com defeito, premiação paga de acordo com quantidade de viagens do mês.'},
+  },
+};
 const PARALISACOES = {
   '2026-05':[{cavalo:'GIT7C28',dias:[28,29,30,31],causa:'veiculo',obs:'Bolsas de ar — Oficina do Raimundo (aba Manutenção x Gastos)'}],
   '2026-06':[{cavalo:'GIT7C28',dias:[1,2,3],causa:'veiculo',obs:'Bolsas de ar — retorno à operação em 04/06'},
@@ -1844,12 +1869,19 @@ const PARALISACOES = {
   // '2026-10':[{cavalo:'GIT7C28',dias:[12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28],causa:'veiculo',obs:'…'}],
 };
 
-/* Tempos médios do ciclo, em MINUTOS por viagem. 'padrao' vale para todos
-   os meses; para um mês específico, crie a chave 'AAAA-MM'. */
+/* Tempos médios por viagem, em MINUTOS, do relatório "Médias de Tempo no
+   Período" do sistema de acompanhamento das viagens. `viagens` = viagens
+   consideradas no relatório. Para fechar um mês novo, copie a linha.
+   Emissão de NF-e e de CT-e não constam no relatório (ficam "a informar"). */
 const TEMPOS_CICLO = {
-  padrao:{abastecimento:null, carregamento:null, viagemIda:null, descarga:null, viagemVolta:null, emissaoNFe:null, emissaoCTe:null},
-  // '2026-11':{abastecimento:60, carregamento:90, viagemIda:180, descarga:60, viagemVolta:150, emissaoNFe:15, emissaoCTe:15},
+  '2026-05':{viagens:50, aguardAbast:56, abastecimento:39, aguardCarreg:118, carregamento:76, viagemIda:212, aguardDescarga:17, descarga:93, viagemVolta:7316, almoco:66, mecanico:0, petro:0, outras:69, emissaoNFe:null, emissaoCTe:null},
+  '2026-06':{viagens:54, aguardAbast:44, abastecimento:18, aguardCarreg:109, carregamento:61, viagemIda:175, aguardDescarga:28, descarga:83, viagemVolta:156, almoco:59, mecanico:0, petro:0, outras:0, emissaoNFe:null, emissaoCTe:null},
+  '2026-07':{viagens:59, aguardAbast:44, abastecimento:17, aguardCarreg:132, carregamento:56, viagemIda:174, aguardDescarga:19, descarga:90, viagemVolta:154, almoco:60, mecanico:0, petro:0, outras:90, emissaoNFe:null, emissaoCTe:null},
+  '2026-08':{viagens:61, aguardAbast:45, abastecimento:17, aguardCarreg:81, carregamento:44, viagemIda:149, aguardDescarga:27, descarga:85, viagemVolta:169, almoco:59, mecanico:0, petro:0, outras:57, emissaoNFe:null, emissaoCTe:null},
+  '2026-09':{viagens:58, aguardAbast:65, abastecimento:17, aguardCarreg:5, carregamento:14, viagemIda:138, aguardDescarga:25, descarga:91, viagemVolta:206, almoco:59, mecanico:0, petro:0, outras:72, emissaoNFe:null, emissaoCTe:null},
+  '2026-10':{viagens:41, aguardAbast:5, abastecimento:16, aguardCarreg:9, carregamento:10, viagemIda:133, aguardDescarga:19, descarga:102, viagemVolta:230, almoco:59, mecanico:0, petro:0, outras:52, emissaoNFe:null, emissaoCTe:null},
 };
+const TEMPO_MAX_PLAUSIVEL = 12*60;   // etapa acima de 12 h = registro em aberto no sistema; não entra nas somas
 
 /* Requisições/agendamentos solicitados pela PetroRec no mês (nº). As
    requisições ATENDIDAS são as viagens faturadas. */
@@ -1857,17 +1889,40 @@ const REQUISICOES_PETROREC = {
   // '2026-10':{solicitadas:62, obs:''},
 };
 
-/* Impostos destacados e creditados, em R$, conforme apuração da
-   contabilidade. O PIS/COFINS sobre a receita já vem da planilha. */
+/* ---------------- FISCAL (Lucro Real · PIS/COFINS não cumulativo) ----------------
+   Débito: 9,25% (PIS 1,65% + COFINS 7,6%) sobre a receita dos CT-e.
+   ICMS: prestação intramunicipal/estadual isenta → destacado R$ 0 e, por ser
+   saída isenta, sem crédito de ICMS nas entradas.
+   Créditos de PIS/COFINS (9,25% sobre as despesas pagas a pessoa jurídica):
+     · ADMITIDOS pela Receita: seguros (RCTR-C, RC-DC, RC-V — SC COSIT 168/2019),
+       manutenção/peças/reboque (insumo — art. 3º, II; PN COSIT 5/2018) e
+       rastreamento (SC COSIT 228/2019). O combustível também daria crédito,
+       mas o GNL é abatido no CT-e (não é comprado pela filial).
+     · EM DISCUSSÃO (não somados): locação do caminhão e prestação do tanque —
+       a Receita nega crédito sobre locação de veículos (SC COSIT 218/2019);
+       há decisões favoráveis no CARF. Se o tanque for bem próprio (compra
+       financiada), o crédito é sobre a depreciação (art. 3º, VI).
+     · SEM crédito: salários/prêmios (mão de obra), carro e combustível de
+       deslocamento (transporte de pessoal), rateio administrativo.
+   Para usar o valor apurado pela contabilidade num mês, preencha FISCAL_MESES. */
+const FISCAL_CFG = { irCsllAliquota: 0.34, aliqPisCofins: 0.0925, icmsIsento: true };
+const CREDITO_ADMITIDO = [['custoSeguro','Seguros (RC-V, RC-DC, RCTR-C)','SC COSIT 168/2019'],['custoManutencao','Manutenção / reboque','Lei 10.833, art. 3º, II · PN COSIT 5/2018'],['custoRastreamento','Rastreamento','SC COSIT 228/2019']];
+const CREDITO_DISCUSSAO = [['custoCaminhaoLoc','Locação do caminhão (Lenarge)'],['custoTanque','Prestação do tanque (Fachinni)']];
 const FISCAL_MESES = {
-  // '2026-10':{icmsDestacado:0, outrosDestacados:0, creditoPisCofins:0, creditoIcms:0, outrosCreditos:0},
+  // '2026-10':{creditoPisCofins: 0},   // valor efetivamente apurado pela contabilidade (substitui a estimativa)
 };
-const FISCAL_CFG = { irCsllAliquota: 0.34 };   // referência Lucro Real (IRPJ 15% + adicional 10% + CSLL 9%)
 
 /* ======================= INDICADORES DERIVADOS ======================= */
 const BARRIS_POR_M3 = 6.28981;                       // 1 barril de petróleo = 0,158987 m³
-const ETAPAS_CICLO = [['abastecimento','Abastecimento (GNL)'],['carregamento','Carregamento'],['viagemIda','Viagem (ida, carregado)'],
-  ['descarga','Descarga'],['viagemVolta','Viagem (volta)'],['emissaoNFe','Emissão de NF-e'],['emissaoCTe','Emissão de CT-e']];
+/* [chave, rótulo, verde abaixo de (min), amarelo até (min)] — faixas do sistema de acompanhamento */
+const ETAPAS_CICLO = [['aguardAbast','Aguardando abastecimento (GNL)',15,25],['abastecimento','Abastecimento (GNL)',25,35],
+  ['aguardCarreg','Aguardando carregamento (Petro)',45,75],['carregamento','Carregamento (Petro)',60,80],
+  ['emissaoNFe','Emissão de NF-e',null,null],['emissaoCTe','Emissão de CT-e',null,null],
+  ['viagemIda','Viagem ida',150,180],['aguardDescarga','Aguardando descarga (destino)',30,45],['descarga','Descarga (destino)',75,105],['viagemVolta','Viagem volta',120,150]];
+const PARADAS_CICLO = [['almoco','Almoço / janta',60,90],['mecanico','Problemas mecânicos',60,90],['petro','Ocorrências Petro',20,30],['outras','Outras paralisações',60,90]];
+function statusTempo(v,verde,amarelo){if(v==null||verde==null)return '';if(v>TEMPO_MAX_PLAUSIVEL)return 'erro';return v<verde?'ok':v<=amarelo?'at':'cr';}
+function fmtMin(v){if(v==null)return '—';const h=Math.floor(v/60),mm=Math.round(v%60);return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;}
+function faixaTxt(verde,amarelo){return verde==null?'':`< ${fmtMin(verde)} · ${fmtMin(verde)}–${fmtMin(amarelo)} · > ${fmtMin(amarelo)}`;}
 function diasDoMes(anoMes){const [a,m]=anoMes.split('-').map(Number);return new Date(a,m,0).getDate();}
 function horasDec(t){if(!t||typeof t!=='string')return null;const m=t.match(/(\d+):(\d+)/);return m?(+m[1])+(+m[2])/60:null;}
 function fmtHoras(h){if(h==null||!isFinite(h))return '—';let H=Math.floor(h),M=Math.round((h-H)*60);if(M===60){H++;M=0;}return `${H}h${String(M).padStart(2,'0')}`;}
@@ -1939,7 +1994,7 @@ function frotaMes(g){
     return Object.keys(cav).sort().map(p=>{
       const c=cav[p],parados=[];for(let d=1;d<=dias;d++)if(!c.dias.has(d))parados.push(d);
       const causa={veiculo:0,petrorec:0,outros:0,semCausa:0};
-      parados.forEach(d=>{const hit=par.find(x=>x.cavalo===p&&x.dias.includes(d));if(hit)causa[causa.hasOwnProperty(hit.causa)?hit.causa:'outros']++;else causa.semCausa++;});
+      parados.forEach(d=>{const hit=par.find(x=>x.cavalo===p&&x.dias.includes(d));if(hit)causa[causa.hasOwnProperty(hit.causa)?hit.causa:'outros']++;else causa[PARALISACAO_PADRAO]++;});
       return {placa:p,viagens:c.viagens,diasOp:c.dias.size,dias,parados,causa,obs:par.filter(x=>x.cavalo===p).map(x=>x.obs),vol:c.vol,liq:c.liq,kg:c.kg};
     });
   };
@@ -1982,16 +2037,29 @@ function requisicoesMes(g){
   return {solicitadas:sol,atendidas:g.viagensFaturadas||0,agendRegistrados:ag.size,atendimento:sol?(g.viagensFaturadas||0)/sol:null};
 }
 function fiscalMes(g){
-  const ks=g.acumulado?(g._meses||[]).map(m=>m.anoMes):[g.anoMes];
-  const soma=c=>{let s=0,ok=true;ks.forEach(k=>{const f=FISCAL_MESES[k];if(f&&f[c]!=null)s+=f[c];else ok=false;});return ok?s:null;};
-  const icms=soma('icmsDestacado'),outrosD=soma('outrosDestacados');
-  const cPis=soma('creditoPisCofins'),cIcms=soma('creditoIcms'),cOut=soma('outrosCreditos');
-  const destacados=(g.impostosReceita||0)+(icms||0)+(outrosD||0);
-  const creditos=(cPis==null&&cIcms==null&&cOut==null)?null:(cPis||0)+(cIcms||0)+(cOut||0);
-  return {pisCofins:g.impostosReceita||0,icms,outrosD,destacados,cPis,cIcms,cOut,creditos,
-    liquido:creditos==null?null:destacados-creditos,cargaFat:dv(destacados,g.fatTotal)};
+  const ks=g.acumulado?(g._meses||[]).map(m=>m.anoMes):[g.anoMes], a=FISCAL_CFG.aliqPisCofins;
+  const itens=CREDITO_ADMITIDO.map(([c,l,base])=>({campo:c,label:l,base,valor:g[c]||0,credito:(g[c]||0)*a}));
+  const estim=itens.reduce((t,x)=>t+x.credito,0);
+  let informado=0,todosInf=true;ks.forEach(k=>{const f=FISCAL_MESES[k];if(f&&f.creditoPisCofins!=null)informado+=f.creditoPisCofins;else todosInf=false;});
+  const creditoPis=todosInf&&ks.length?informado:estim;
+  const disc=CREDITO_DISCUSSAO.map(([c,l])=>({label:l,valor:g[c]||0,credito:(g[c]||0)*a}));
+  const pisCofins=g.impostosReceita||0;
+  return {pisCofins,icms:0,destacados:pisCofins,itens,creditoPis,creditoIcms:0,creditos:creditoPis,fonteContab:todosInf&&ks.length>0,
+    disc,creditoDisc:disc.reduce((t,x)=>t+x.credito,0),liquido:pisCofins-creditoPis,cargaFat:dv(pisCofins,g.fatTotal),cargaLiqFat:dv(pisCofins-creditoPis,g.fatTotal)};
 }
-function temposCiclo(g){return Object.assign({},TEMPOS_CICLO.padrao,(g.anoMes&&TEMPOS_CICLO[g.anoMes])||{});}
+function temposMes(g){
+  const ks=g.acumulado?(g._meses||[]).map(m=>m.anoMes):[g.anoMes];
+  const lista=ETAPAS_CICLO.concat(PARADAS_CICLO);
+  const out={},cont={};
+  lista.forEach(([k])=>{let s=0,w=0;ks.forEach(mes=>{const T=TEMPOS_CICLO[mes];if(!T||T[k]==null||T[k]>TEMPO_MAX_PLAUSIVEL)return;s+=T[k]*(T.viagens||1);w+=(T.viagens||1);});
+    out[k]=w?s/w:null;
+    cont[k]=ks.some(mes=>TEMPOS_CICLO[mes]&&TEMPOS_CICLO[mes][k]!=null&&TEMPOS_CICLO[mes][k]>TEMPO_MAX_PLAUSIVEL);});
+  if(!g.acumulado){const T=TEMPOS_CICLO[g.anoMes];if(T)ETAPAS_CICLO.concat(PARADAS_CICLO).forEach(([k])=>{if(T[k]!=null&&T[k]>TEMPO_MAX_PLAUSIVEL)out[k+'_bruto']=T[k];});}
+  const tem=ks.some(mes=>TEMPOS_CICLO[mes]);
+  const somaE=ETAPAS_CICLO.reduce((t,[k])=>t+(out[k]||0),0), somaP=PARADAS_CICLO.reduce((t,[k])=>t+(out[k]||0),0);
+  const viagens=ks.reduce((t,mes)=>t+((TEMPOS_CICLO[mes]&&TEMPOS_CICLO[mes].viagens)||0),0);
+  return {t:out,excluido:cont,tem,somaE,somaP,total:somaE+somaP,viagens};
+}
 
 /* ======================= VISÃO GERENCIAL ======================= */
 function renderGerencial(){
@@ -2076,13 +2144,13 @@ function renderGerencial(){
   const G=(l,v,s)=>`<div class="gi"><div class="gi-l">${l}</div><div class="gi-v">${v}</div>${s?`<div class="gi-s">${s}</div>`:''}</div>`;
   $('gerInd').innerHTML=(g.aberto?`<div class="gi" style="grid-column:1/-1;border-color:#c8a02055;background:#c8a02012"><div class="gi-l">Mês em andamento</div><div class="gi-v" style="font-size:12.5px;color:#d8c07a">${g.diasDecorridos} de ${g.diasNoMes} dias · custos fixos provisionados a ${NUM.format(g.fatorProRata*100)}%</div></div>`:'')+[
     G('Viagens faturadas',`${I.v}`,`${fNUM(I.viagensPorCam,1)} por caminhão`),
-    G('Utilização da frota',`${fNUM(I.utilizacao*100,1)}<small>%</small>`,`ocioso ${fPct(I.ocioso)} · ${I.diasCam} dias-caminhão`),
+    G('Utilização da frota',`${fNUM(I.utilizacao*100,1)}<small>%</small>`,`ocioso ${fPct(I.ocioso)}`),
     G('Volume de petróleo',`${fNUM(I.vol)} <small>m³</small>`,`${fNUM(I.barris,0)} barris`),
     G('Volume / viagem',`${fNUM(I.volViagem)} <small>m³</small>`,`${fNUM(I.barrisViagem,1)} barris`),
-    G('Volume diário / caminhão',`${fNUM(I.volDiaCam)} <small>m³/dia</small>`,`frota: ${fNUM(I.volDia)} m³/dia`),
-    G('Viagens / caminhão / dia',fNUM(I.viagensCamDia),'capacidade: 1 viagem/dia'),
+    G('Volume diário / caminhão',`${fNUM(I.volDiaCam)} <small>m³/dia</small>`,`calculado pelos ${I.dias} dias ${g.aberto?'decorridos':'do mês'} · frota ${fNUM(I.volDia)} m³/dia`),
+    G('Viagens / caminhão / dia',fNUM(I.viagensCamDia),`frota: ${fNUM(dv(I.v,I.dias))} viagens/dia · capacidade total ${I.cam} viagens/dia (${I.cam} caminhões × 1)`),
     G('Km rodados',`${fNUM(I.km,0)} <small>km</small>`,`${fNUM(I.kmViagem,1)} km/viagem`),
-    G('Tempo médio de ciclo',fmtHoras(I.cicloH),'planilha · por viagem'),
+    G('Tempo médio de ciclo',fmtHoras(I.cicloH),(()=>{const t=temposMes(g);return t.tem?`planilha · sistema de acompanhamento: ${fmtMin(t.total)}`:'planilha · por viagem';})()),
     G('Consumo GNL total',`${fNUM(I.kg)} <small>kg</small>`,`${fNUM(I.kgDia,1)} kg/dia na frota`),
     G('Consumo GNL / viagem',`${fNUM(I.kgViagem)} <small>kg</small>`,`${fNUM(I.kgDiaCam,1)} kg/dia por caminhão`),
     G('Custo GNL / viagem',fBRL(I.gnlRsViagem),`${fBRL(I.gnlRsKg)} por kg`),
@@ -2108,7 +2176,7 @@ function renderGerencial(){
   $('gerMotPerf').innerHTML=painelMotoristas(g,I);
   const premioRegra=g.anoMes?premioTotalRegra(g.anoMes):0;
   $('gerMotTable').innerHTML=renderGerMotoristas(g.anoMes,g.periodo)+(g.anoMes&&!g.aberto&&Math.abs(premioRegra-g.custoPremiacao)>0.5&&!PREMIOS_FIXOS[g.anoMes]
-    ?`<div class="nota-alerta">⚠ Premiação lançada na DRE da planilha: <b>${fBRL(g.custoPremiacao)}</b> · pela regra (≥ ${PREMIO_META} viagens e caminhão ≥ ${PREMIO_MIN_DIAS} dias) seriam <b>${fBRL(premioRegra)}</b>. Conferir com o RH.</div>`:'');
+    ?`<div class="nota-alerta">⚠ Premiação lançada na DRE da planilha: <b>${fBRL(g.custoPremiacao)}</b> · pela regra (≥ ${PREMIO_META} viagens e caminhão ≥ ${PREMIO_MIN_DIAS} dias) mais os ajustes cadastrados seriam <b>${fBRL(premioRegra)}</b>. Conferir com o RH.</div>`:'');
   /* ---- Ciclo e fiscal ---- */
   $('gerCiclo').innerHTML=painelCiclo(g,I);
   $('gerFiscal').innerHTML=painelFiscal(g,I);
@@ -2128,18 +2196,19 @@ function tabelaUnidades(g,I){
 
 function painelFrota(g,I){
   const F=frotaMes(g),t=F.tot,dc=t.diasCam||1;
+  const porCam=F.lista.map(x=>`${x.placa} ${x.parados.length}`).join(' · ');
   const resumo=`<div class="ger-ind c4">
-    <div class="gi"><div class="gi-l">% ocioso (dias sem viagem)</div><div class="gi-v">${fPct(t.parados/dc)}</div><div class="gi-s">${t.parados} de ${t.diasCam} dias-caminhão</div></div>
-    <div class="gi"><div class="gi-l">% paralisação — veículo</div><div class="gi-v">${fPct(t.veiculo/dc)}</div><div class="gi-s">${t.veiculo} dias-caminhão</div></div>
-    <div class="gi"><div class="gi-l">% paralisação — PetroReconcavo</div><div class="gi-v">${fPct(t.petrorec/dc)}</div><div class="gi-s">${t.petrorec} dias-caminhão</div></div>
-    <div class="gi"><div class="gi-l">% sem causa registrada</div><div class="gi-v" style="color:${t.semCausa?'#e2a23b':'var(--white)'}">${fPct(t.semCausa/dc)}</div><div class="gi-s">${t.semCausa} dias · ${t.outros} outros motivos</div></div>
+    <div class="gi"><div class="gi-l">% ocioso (dias sem viagem)</div><div class="gi-v">${fPct(t.parados/dc)}</div><div class="gi-s">${t.parados} dias parados · ${porCam}</div></div>
+    <div class="gi"><div class="gi-l">% paralisação — veículo</div><div class="gi-v">${fPct(t.veiculo/dc)}</div><div class="gi-s">defeito mecânico / manutenção · ${t.veiculo} dias</div></div>
+    <div class="gi"><div class="gi-l">% paralisação — PetroReconcavo</div><div class="gi-v">${fPct(t.petrorec/dc)}</div><div class="gi-s">${t.petrorec} dias</div></div>
+    <div class="gi"><div class="gi-l">Dias operando</div><div class="gi-v">${F.lista.reduce((s,x)=>s+x.diasOp,0)}</div><div class="gi-s">${F.lista.map(x=>`${x.placa} ${x.diasOp}`).join(' · ')}</div></div>
   </div>`;
   const tb=`<div class="tbl-wrap" style="max-height:none;margin-top:12px"><table class="mot-tbl frota-tbl">
-    <thead><tr><th style="text-align:left">Caminhão</th><th>Viagens</th><th>Dias operando</th><th>Dias parado</th><th>Utilização</th><th>Volume (m³)</th><th>m³ / dia operado</th><th>Receita líq. CT-e</th><th>Veículo</th><th>PetroRec</th><th>Sem causa</th></tr></thead>
+    <thead><tr><th style="text-align:left">Caminhão</th><th>Viagens</th><th>Dias operando</th><th>Dias parado</th><th>Utilização</th><th>Volume (m³)</th><th>m³ / dia operado</th><th>Receita líq. CT-e</th><th>Parado — veículo</th><th>Parado — PetroRec</th><th>Outros</th></tr></thead>
     <tbody>${F.lista.map(x=>`<tr><td style="text-align:left"><b>${x.placa}</b>${x.obs.length?`<div class="p-note" style="margin:2px 0 0">${x.obs.join(' · ')}</div>`:''}${!g.acumulado&&x.parados.length?`<div class="p-note" style="margin:2px 0 0">dias sem viagem: ${x.parados.join(', ')}</div>`:''}</td>
       <td>${x.viagens}</td><td>${x.diasOp}</td><td>${x.parados.length}</td><td>${fPct(x.diasOp/(x.dias||1))}</td><td>${fNUM(x.vol)}</td><td>${fNUM(dv(x.vol,x.diasOp))}</td><td>${fBRL(x.liq)}</td>
-      <td>${x.causa.veiculo}</td><td>${x.causa.petrorec}</td><td style="color:${x.causa.semCausa?'#e2a23b':'inherit'}">${x.causa.semCausa}</td></tr>`).join('')}</tbody></table></div>
-    <div class="p-note">Dia parado = dia do mês sem CT-e daquele caminhão (cada caminhão faz no máximo 1 viagem/dia). A causa vem do cadastro <b>PARALISACOES</b> no código; os dias de maio e junho foram classificados com base na aba "Manutenção x Gastos".${g.anoMes==='2026-05'?' Em maio, a base de viagens soma 2.369,40 m³ e a aba gerencial 2.421,72 m³.':''}</div>`;
+      <td>${x.causa.veiculo}</td><td>${x.causa.petrorec}</td><td>${x.causa.outros}</td></tr>`).join('')}</tbody></table></div>
+    <div class="p-note">Dia parado = dia do mês sem CT-e daquele caminhão (cada caminhão faz no máximo 1 viagem por dia). Pela regra da operação, todo dia parado conta como paralisação do veículo (defeito mecânico / manutenção), salvo outro motivo cadastrado em <b>PARALISACOES</b>.${g.anoMes==='2026-05'?' Em maio, a base de viagens soma 2.369,40 m³ e a aba gerencial 2.421,72 m³.':''}</div>`;
   return resumo+tb;
 }
 
@@ -2156,36 +2225,50 @@ function painelMotoristas(g,I){
 }
 
 function painelCiclo(g,I){
-  const T=temposCiclo(g),soma=ETAPAS_CICLO.reduce((t,[k])=>t+(T[k]||0),0),temAlgum=ETAPAS_CICLO.some(([k])=>T[k]!=null);
-  const linhas=ETAPAS_CICLO.map(([k,l])=>{const v=T[k];return `<tr><td>${l}</td><td class="v">${v==null?AINF:fmtHoras(v/60)}</td><td class="v" style="width:42%">${v==null?'':`<span class="ciclo-bar" style="width:${Math.max(3,soma?v/soma*100:0)}%"></span>`}</td></tr>`;}).join('');
-  return `<div class="ger-ind"><div class="gi"><div class="gi-l">Tempo médio de ciclo (planilha)</div><div class="gi-v">${fmtHoras(I.cicloH)}</div><div class="gi-s">por viagem completa</div></div>
-    <div class="gi"><div class="gi-l">Soma das etapas medidas</div><div class="gi-v">${temAlgum?fmtHoras(soma/60):'—'}</div><div class="gi-s">${temAlgum?'':'nenhuma etapa medida ainda'}</div></div></div>
-    <table class="dre" style="margin-top:10px">${linhas}</table>
-    <div class="p-note">A planilha só traz o ciclo total. Para detalhar abastecimento, carregamento, viagem, descarga e emissão de NF-e/CT-e, preencha <b>TEMPOS_CICLO</b> (minutos) no código ou crie as colunas de horário na aba Compilado.</div>`;
+  const R=temposMes(g);
+  if(!R.tem)return `<div class="ger-ind"><div class="gi"><div class="gi-l">Tempo médio de ciclo (planilha)</div><div class="gi-v">${fmtHoras(I.cicloH)}</div></div></div><div class="p-note">Sem relatório de tempos lançado para este mês: preencha <b>TEMPOS_CICLO</b> com o relatório "Médias de Tempo no Período" do sistema de acompanhamento.</div>`;
+  const pill={ok:'t-ok',at:'t-at',cr:'t-cr',erro:'t-cr'};
+  const linha=([k,l,v1,v2],ehParada)=>{const v=R.t[k],bruto=R.t[k+'_bruto'],st=statusTempo(bruto!=null?bruto:v,v1,v2);
+    const pct=ehParada&&v!=null&&R.total?` <span class="t-pct">${fPct(v/R.total)} do ciclo</span>`:'';
+    const val=bruto!=null?`<span class="t-pill t-cr">${fmtMin(bruto)}</span> <span class="t-pct">registro em aberto no sistema — fora da soma</span>`:v==null?AINF:`<span class="t-pill ${pill[st]||''}">${fmtMin(v)}</span>${pct}`;
+    return `<tr><td>${l}<div class="t-faixa">${faixaTxt(v1,v2)}</div></td><td class="v">${val}</td></tr>`;};
+  const dif=I.cicloH!=null?R.total-I.cicloH*60:null;
+  return `<div class="ger-ind">
+      <div class="gi"><div class="gi-l">Ciclo pelo sistema (etapas + paradas)</div><div class="gi-v">${fmtMin(R.total)}</div><div class="gi-s">etapas ${fmtMin(R.somaE)} · paradas ${fmtMin(R.somaP)} · ${R.viagens} viagens</div></div>
+      <div class="gi"><div class="gi-l">Ciclo da planilha</div><div class="gi-v">${fmtHoras(I.cicloH)}</div><div class="gi-s">${dif==null?'':Math.abs(dif)<1?'confere com o sistema':`${fmtMin(Math.abs(dif))} ${dif>0?'abaixo':'acima'} do sistema`}${Object.values(R.excluido).some(Boolean)?' · sistema sem a viagem volta (em aberto)':''}</div></div></div>
+    <table class="dre ciclo-tbl" style="margin-top:10px">
+      <tr class="sec-hd"><td colspan="2">Etapas da viagem — média por viagem</td></tr>
+      ${ETAPAS_CICLO.map(e=>linha(e,false)).join('')}
+      <tr class="sec-hd"><td colspan="2">Paralisações durante a viagem — média por viagem</td></tr>
+      ${PARADAS_CICLO.map(e=>linha(e,true)).join('')}
+    </table>
+    <div class="p-note">Fonte: relatório "Médias de Tempo no Período" do sistema de acompanhamento. Cor pela faixa de cada etapa: <span class="t-pill t-ok">dentro</span> <span class="t-pill t-at">atenção</span> <span class="t-pill t-cr">acima</span>. Emissão de NF-e e CT-e não constam no relatório.</div>`;
 }
 
 function painelFiscal(g,I){
   const F=fiscalMes(g),R=requisicoesMes(g);
-  const L=(l,v,c)=>`<tr class="${c||''}"><td>${l}</td><td class="v">${v}</td></tr>`;
+  const L=(l,v,c,n)=>`<tr class="${c||''}"><td>${l}${n?`<span class="obs-wrap"><span class="obs-icon">ℹ</span><span class="obs-tip">${n}</span></span>`:''}</td><td class="v">${v}</td></tr>`;
+  const S=(l,v)=>`<tr><td style="padding-left:22px;font-size:11.5px;color:var(--txt-dim)">${l}</td><td class="v" style="font-size:11.5px;color:var(--txt-dim)">${v}</td></tr>`;
   return `<table class="dre">
-    <tr class="sec-hd"><td colspan="2">Impostos destacados / apurados</td></tr>
-    ${L('PIS/COFINS sobre a receita (9,25% — planilha)',fBRL(F.pisCofins),'neg')}
-    ${L('ICMS destacado nos CT-e',F.icms==null?AINF:fBRL(F.icms),'neg')}
-    ${L('Outros (IBS/CBS etc.)',F.outrosD==null?AINF:fBRL(F.outrosD),'neg')}
-    ${L('Total de impostos destacados'+(F.icms==null?' (só PIS/COFINS)':''),fBRL(F.destacados),'tot')}
-    ${L('Carga sobre o faturamento bruto',fPct(F.cargaFat))}
-    <tr class="sec-hd"><td colspan="2">Impostos creditados</td></tr>
-    ${L('Créditos de PIS/COFINS',F.cPis==null?AINF:fBRL(F.cPis))}
-    ${L('Créditos de ICMS',F.cIcms==null?AINF:fBRL(F.cIcms))}
-    ${L('Total de impostos creditados',F.creditos==null?AINF:fBRL(F.creditos),'tot')}
-    ${L('Imposto líquido (destacado − creditado)',F.liquido==null?AINF:fBRL(F.liquido))}
+    <tr class="sec-hd"><td colspan="2">Impostos destacados (débito)</td></tr>
+    ${L('PIS/COFINS sobre os CT-e (9,25%)',fBRL(F.pisCofins),'neg','PIS 1,65% + COFINS 7,6% — regime não cumulativo (Lucro Real), sobre a receita bruta dos CT-e.')}
+    ${L('ICMS sobre os CT-e','<span class="t-pill t-ok">isento</span> R$ 0,00','')}
+    ${L('Total de impostos destacados',fBRL(F.destacados),'tot')}
+    <tr class="sec-hd"><td colspan="2">Impostos creditados — PIS/COFINS 9,25% sobre despesas</td></tr>
+    ${F.itens.map(x=>S(`${x.label} · base ${fBRL(x.valor)}`,fBRL(x.credito))).join('')}
+    ${L(F.fonteContab?'Total creditado (informado pela contabilidade)':'Total creditado (estimado)',fBRL(F.creditos),'tot','Créditos que a Receita admite para transportadora: seguros (SC COSIT 168/2019), manutenção como insumo (art. 3º, II; PN COSIT 5/2018) e rastreamento (SC COSIT 228/2019).')}
+    ${L('Crédito de ICMS','R$ 0,00','','Prestação isenta: o ICMS das compras ligadas a ela não pode ser creditado (LC 87/96, art. 21).')}
+    ${L('PIS/COFINS líquido (débito − crédito)',fBRL(F.liquido),'hl')}
+    ${L('Carga líquida sobre o faturamento bruto',fPct(F.cargaLiqFat))}
+    <tr class="sec-hd"><td colspan="2">Créditos em discussão — não somados</td></tr>
+    ${F.disc.map(x=>S(`${x.label} · base ${fBRL(x.valor)}`,fBRL(x.credito))).join('')}
+    ${L('Potencial se a tese for aceita',fBRL(F.creditoDisc),'est','A Receita nega crédito sobre locação de veículos (SC COSIT 218/2019); há decisões favoráveis no CARF. Se o tanque for bem próprio, o crédito é sobre a depreciação (art. 3º, VI), não sobre a prestação.')}
     <tr class="sec-hd"><td colspan="2">Requisições PetroReconcavo</td></tr>
     ${L('Requisições solicitadas',R.solicitadas==null?AINF:fNUM(R.solicitadas,0))}
     ${L('Requisições atendidas (viagens faturadas)',fNUM(R.atendidas,0),'tot')}
     ${L('% de atendimento',R.atendimento==null?'—':fPct(R.atendimento))}
-    ${L('Nº de agendamento registrado na base',R.agendRegistrados?`${R.agendRegistrados} de ${R.atendidas}`:'não preenchido')}
   </table>
-  <div class="p-note">Valores "a informar" não constam na planilha: preencha <b>FISCAL_MESES</b> e <b>REQUISICOES_PETROREC</b> no código com os números da contabilidade e da programação da PetroRec. A coluna "Agendamento" da aba Compilado só foi preenchida até julho.</div>`;
+  <div class="p-note"><b>Sem crédito:</b> salários e prêmios dos motoristas (mão de obra), carro e combustível de deslocamento (transporte de pessoal), rateio administrativo e o GNL (abatido no CT-e, não é comprado pela filial). <b>Sobre os CT-e emitidos não há crédito para a Minas:</b> o PIS/COFINS do frete é débito de quem presta o serviço; o crédito do frete é de quem contrata (a PetroRec). Os créditos só valem para compras de pessoa jurídica.</div>`;
 }
 
 /* ======================= COMPARATIVO MENSAL ======================= */
@@ -2197,7 +2280,7 @@ function renderComparativo(){
   const T=agregaMeses(meses);T._meses=meses;
   const cols=meses.concat([T]);
   const IND=cols.map(indMes);
-  const FR=cols.map(frotaMes), MP=cols.map(motoristasPerf), RQ=cols.map(requisicoesMes), FS=cols.map(fiscalMes);
+  const FR=cols.map(frotaMes), MP=cols.map(motoristasPerf), RQ=cols.map(requisicoesMes), FS=cols.map(fiscalMes), TM=cols.map(temposMes);
   const nCols=cols.length+1;
   const brl=fBRL, num=d=>v=>fNUM(v,d), pct=d=>v=>fPct(v,d);
   function delta(cur,prev,menorEhMelhor){
@@ -2291,18 +2374,26 @@ function renderComparativo(){
   h+=row('Viagens por veículo',(g,I)=>I.viagensPorCam,num(1));
   h+=row('Utilização da frota',(g,I)=>I.utilizacao,pct(1),{d:false,nota:'Viagens ÷ (caminhões × dias do mês)'});
   h+=row('% ocioso (dias-caminhão sem viagem)',(g,I,i)=>dv(FR[i].tot.parados,FR[i].tot.diasCam),pct(1),{d:false});
-  h+=row('% paralisação — problemas no veículo',(g,I,i)=>dv(FR[i].tot.veiculo,FR[i].tot.diasCam),pct(1),{d:false});
+  h+=row('% paralisação — veículo (defeito / manutenção)',(g,I,i)=>dv(FR[i].tot.veiculo,FR[i].tot.diasCam),pct(1),{d:false});
   h+=row('% paralisação — PetroReconcavo',(g,I,i)=>dv(FR[i].tot.petrorec,FR[i].tot.diasCam),pct(1),{d:false});
-  h+=row('% parado sem causa registrada',(g,I,i)=>dv(FR[i].tot.semCausa,FR[i].tot.diasCam),pct(1),{d:false});
   h+=row('Volume transportado (m³)',(g,I)=>I.vol,num(2));
   h+=row('Volume transportado (barris)',(g,I)=>I.barris,num(0));
   h+=row('Volume / viagem (m³)',(g,I)=>I.volViagem,num(2));
   h+=row('Volume diário por caminhão (m³)',(g,I)=>I.volDiaCam,num(2));
   h+=row('Km rodados',(g,I)=>I.km,num(0));
-  h+=row('Média de ciclo mensal',(g,I)=>fmtHoras(I.cicloH),null,{d:false});
+  h+=row('Média de ciclo mensal (planilha)',(g,I)=>fmtHoras(I.cicloH),null,{d:false});
+  h+=row('Média de ciclo mensal (sistema)',(g,I,i)=>TM[i].tem?fmtMin(TM[i].total):'—',null,{d:false});
   h+=row('Requisições PetroRec solicitadas',(g,I,i)=>RQ[i].solicitadas==null?AINF:fNUM(RQ[i].solicitadas,0),null);
   h+=row('Requisições atendidas (viagens)',(g,I,i)=>RQ[i].atendidas,num(0));
 
+
+  h+=sec('Tempos do ciclo — média por viagem (sistema de acompanhamento)');
+  const pillT=(v,st)=>`<span class="t-pill ${{ok:'t-ok',at:'t-at',cr:'t-cr',erro:'t-cr'}[st]||''}">${fmtMin(v)}</span>`;
+  ETAPAS_CICLO.concat(PARADAS_CICLO).forEach(([k,l,v1,v2],idx)=>{
+    if(idx===ETAPAS_CICLO.length)h+=sub('Paralisações durante a viagem');
+    h+=row(l,(g,I,i)=>{const R=TM[i],b=R.t[k+'_bruto'];if(b!=null)return pillT(b,'erro')+' <span class="t-pct">em aberto</span>';const v=R.t[k];return v==null?(R.tem?AINF:'—'):pillT(v,statusTempo(v,v1,v2));},null);
+  });
+  h+=row('Total (etapas + paralisações)',(g,I,i)=>TM[i].tem?fmtMin(TM[i].total):'—',null,{cls:'tot'});
   h+=sec('Motoristas');
   h+=sub('Viagens por motorista');
   nomes.forEach(n=>h+=row(`&nbsp;&nbsp;${n.split(' ').slice(0,2).join(' ')}`,(g,I,i)=>{const x=MP[i].find(y=>y.nome===n);return x?x.viagens:0;},num(0)));
@@ -2321,16 +2412,18 @@ function renderComparativo(){
   h+=row('Eficiência (km/kg)',(g,I)=>I.kmKg,num(2));
   h+=row('% GNL sobre faturamento',(g,I)=>I.pctGnlFat,pct(1),{d:false});
 
-  h+=sec('Fiscal');
-  h+=row('PIS/COFINS sobre a receita',(g,I,i)=>FS[i].pisCofins,brl,{neg:true});
-  h+=row('ICMS destacado',(g,I,i)=>FS[i].icms==null?AINF:fBRL(FS[i].icms),null);
-  h+=row('Total impostos destacados',(g,I,i)=>FS[i].destacados,brl,{neg:true,cls:'tot',nota:'Enquanto o ICMS não for informado, considera só PIS/COFINS'});
-  h+=row('Total impostos creditados',(g,I,i)=>FS[i].creditos==null?AINF:fBRL(FS[i].creditos),null);
+  h+=sec('Fiscal (Lucro Real — PIS/COFINS não cumulativo)');
+  h+=row('PIS/COFINS sobre os CT-e (débito)',(g,I,i)=>FS[i].pisCofins,brl,{neg:true});
+  h+=row('ICMS sobre os CT-e',()=>'isento',null);
+  h+=row('Total de impostos destacados',(g,I,i)=>FS[i].destacados,brl,{neg:true,cls:'tot'});
+  h+=row('Créditos de PIS/COFINS (seguros, manutenção, rastreamento)',(g,I,i)=>FS[i].creditos,brl,{nota:'Estimativa: 9,25% sobre as despesas que a Receita admite como crédito'});
+  h+=row('PIS/COFINS líquido',(g,I,i)=>FS[i].liquido,brl,{neg:true,cls:'tot'});
+  h+=row('Créditos em discussão (locação caminhão + tanque)',(g,I,i)=>FS[i].creditoDisc,brl,{cls:'est',nota:'Não somados: Receita nega (SC COSIT 218/2019), CARF tem decisões favoráveis'});
 
   h+=sec('Metas e prêmios — motoristas');
   h+=`<tr class="tot"><td colspan="${nCols}" style="font-size:10px;color:var(--txt-dim);font-weight:600;padding:6px 10px">Meta: ${PREMIO_META} viagens/mês · Prêmio: R$${PREMIO_VALOR}/viagem · Caminhão: ≥${PREMIO_MIN_DIAS} dias operando · Maio e Junho/26 com prêmios em valor fixo</td></tr>`;
   nomes.forEach(nome=>{h+=`<tr><td style="padding-left:14px;font-size:12px">${nome.split(' ').slice(0,3).join(' ')}</td>${cols.map(g=>{if(!g.anoMes)return '<td class="acc">—</td>';const d=motMesDados(g.anoMes)[nome];if(!d)return '<td style="color:var(--txt-dim)">—</td>';return `<td style="line-height:2">${d.metaBadge}<br>${d.premioBadge}</td>`;}).join('')}</tr>`;});
-  h+=row('Prêmios pela regra',g=>g.anoMes?premioTotalRegra(g.anoMes):meses.reduce((t,m)=>t+premioTotalRegra(m.anoMes),0),brl,{d:false});
+  h+=row('Prêmios apurados (regra + ajustes)',g=>g.anoMes?premioTotalRegra(g.anoMes):meses.reduce((t,m)=>t+premioTotalRegra(m.anoMes),0),brl,{d:false});
   h+=row('Premiação lançada na DRE',g=>g.custoPremiacao,brl,{d:false});
   h+='</tbody></table>';
   $('compContent').innerHTML=h;
